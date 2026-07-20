@@ -1,1155 +1,590 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jagannath Danmark — Lord of the Universe</title>
+<meta name="description" content="Jagannath temple in Copenhagen — daily darshan, aarti, events and Ratha-Yatra. Skjulhøj Allé 44, 2720 København.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── HERO UPGRADE ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
+  background: var(--night);
+}
 
-  :root {
-    --saffron: #E8610A;
-    --saffron-light: #FDF3EC;
-    --gold: #C8911A;
-    --gold-light: #FBF5E6;
-    --night: #1A1008;
-    --night-mid: #2E1F0D;
-    --cream: #FAF7F2;
-    --text: #1A1008;
-    --text-mid: #5C4A30;
-    --text-muted: #9A8060;
-    --white: #FFFFFF;
-    --border: rgba(200, 145, 26, 0.2);
-    --font-display: 'Cormorant Garamond', Georgia, serif;
-    --font-body: 'DM Sans', system-ui, sans-serif;
-  }
+/* Left: text */
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem 4rem 6rem 5vw;
+  position: relative;
+  z-index: 2;
+}
+.hero-left::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(200,145,26,.3), transparent);
+}
 
-  html { scroll-behavior: smooth; }
+/* Right: deity image */
+.hero-right {
+  position: relative;
+  overflow: hidden;
+}
+.hero-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: saturate(1.1) contrast(1.05);
+}
+/* Golden vignette overlay */
+.hero-right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--night) 0%, transparent 30%),
+              linear-gradient(to top, var(--night) 0%, transparent 20%);
+  z-index: 1;
+  pointer-events: none;
+}
+/* Glowing halo behind deities */
+.hero-right::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(200,145,26,.15) 0%, transparent 60%);
+  z-index: 2;
+  pointer-events: none;
+}
 
-  body {
-    font-family: var(--font-body);
-    background: var(--cream);
-    color: var(--text);
-    line-height: 1.6;
-    font-size: 16px;
-  }
+.hero-om {
+  font-size: 2.5rem;
+  color: var(--gold);
+  opacity: .5;
+  margin-bottom: 1.5rem;
+  line-height: 1;
+}
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  opacity: .8;
+}
+.hero-title {
+  font-family: var(--font-d);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  font-weight: 300;
+  color: white;
+  line-height: 1.0;
+  margin-bottom: .4rem;
+  letter-spacing: -.01em;
+}
+.hero-title strong {
+  font-weight: 600;
+  font-style: italic;
+  color: var(--gold);
+  display: block;
+}
+.hero-subtitle {
+  font-family: var(--font-d);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  color: rgba(255,255,255,.38);
+  font-style: italic;
+  letter-spacing: .08em;
+  margin-bottom: 2.5rem;
+}
+.hero-divider {
+  width: 48px;
+  height: 1px;
+  background: var(--gold);
+  opacity: .4;
+  margin-bottom: 2rem;
+}
+.hero-mantra {
+  font-family: var(--font-d);
+  font-style: italic;
+  font-size: clamp(.85rem, 1.5vw, 1.05rem);
+  color: rgba(255,255,255,.45);
+  line-height: 1.8;
+  letter-spacing: .06em;
+  margin-bottom: 3rem;
+}
+.hero-mantra span { color: var(--gold); opacity: .7; }
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-  /* ── LANGUAGE TOGGLE ── */
-  .lang-bar {
-    background: var(--night);
-    padding: 8px 2rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 4px;
-  }
-  .lang-btn {
-    background: none;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.6);
-    padding: 4px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    transition: all 0.2s;
-  }
-  .lang-btn.active, .lang-btn:hover {
-    background: var(--saffron);
-    border-color: var(--saffron);
-    color: white;
-  }
+/* ── TIMINGS BAR UPGRADE ── */
+.timings-bar {
+  background: linear-gradient(90deg, var(--night-mid) 0%, #2a1a08 100%);
+  border-top: 1px solid rgba(200,145,26,.25);
+  border-bottom: 1px solid rgba(200,145,26,.15);
+  padding: 0 2rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.timings-bar::-webkit-scrollbar { display: none; }
+.tb-label {
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+  padding: 1rem 1.5rem 1rem 0;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-right: 1px solid rgba(200,145,26,.2);
+  margin-right: 0;
+}
+.tb-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: .75rem 1.25rem;
+  border-right: 1px solid rgba(255,255,255,.06);
+  min-width: fit-content;
+  transition: background .2s;
+}
+.tb-item:hover { background: rgba(200,145,26,.06); }
+.tb-name {
+  font-family: var(--font-d);
+  font-style: italic;
+  color: rgba(255,255,255,.75);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.tb-time {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 2px;
+  letter-spacing: .03em;
+}
+.tb-closed {
+  font-size: 10px;
+  color: rgba(255,255,255,.25);
+  margin-top: 1px;
+}
 
-  /* ── NAV ── */
-  nav {
-    background: var(--night);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 1px solid rgba(200,145,26,0.3);
-  }
-  .nav-logo {
-    font-family: var(--font-display);
-    font-size: 22px;
-    color: var(--gold);
-    text-decoration: none;
-    padding: 16px 0;
-    letter-spacing: 0.02em;
-  }
-  .nav-logo span { color: rgba(255,255,255,0.4); font-size: 14px; font-family: var(--font-body); font-weight: 400; margin-left: 8px; }
-  .nav-links {
-    display: flex;
-    gap: 0;
-    list-style: none;
-  }
-  .nav-links a {
-    color: rgba(255,255,255,0.65);
-    text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    padding: 20px 16px;
-    display: block;
-    transition: color 0.2s;
-    text-transform: uppercase;
-  }
-  .nav-links a:hover { color: var(--gold); }
-  .nav-donate {
-    background: var(--saffron);
-    color: white !important;
-    border-radius: 4px;
-    padding: 8px 18px !important;
-    margin-left: 8px;
-  }
-  .nav-donate:hover { background: #c5520a; color: white !important; }
+/* ── ABOUT SECTION ── */
+.about-section {
+  background: var(--white);
+  padding: 6rem 2rem;
+}
+.about-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+.about-image-stack {
+  position: relative;
+}
+.about-img-frame {
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(26,16,8,.12);
+  aspect-ratio: 3/4;
+  background: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-img-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.about-badge {
+  position: absolute;
+  bottom: -1rem;
+  right: -1rem;
+  background: var(--saffron);
+  color: white;
+  padding: .75rem 1.25rem;
+  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(232,97,10,.3);
+}
 
-  /* ── HERO ── */
-  .hero {
-    background: var(--night);
-    min-height: 92vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 4rem 2rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 60%, rgba(200,145,26,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  /* Decorative mandala ring */
-  .mandala-ring {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    border: 1px solid rgba(200,145,26,0.08);
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-  .mandala-ring:nth-child(2) { width: 800px; height: 800px; border-color: rgba(200,145,26,0.05); }
-  .mandala-ring:nth-child(3) { width: 1000px; height: 1000px; border-color: rgba(200,145,26,0.03); }
+/* ── DEITY CARDS HORIZONTAL ── */
+.deity-strip {
+  background: var(--night);
+  padding: 3rem 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1px;
+}
+.d-card {
+  flex: 1;
+  max-width: 320px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  border: 1px solid rgba(200,145,26,.15);
+  position: relative;
+  overflow: hidden;
+}
+.d-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform .3s;
+}
+.d-card:hover::before { transform: scaleX(1); }
+.d-face {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border: 2px solid rgba(200,145,26,.25);
+}
+.d-face.jf { background: var(--night-mid); border-color: var(--gold); }
+.d-face.bf { background: rgba(245,240,232,.08); }
+.d-face.sf { background: rgba(255,243,220,.06); }
+.d-name { font-family: var(--font-d); font-size: 1.4rem; font-weight: 600; color: white; margin-bottom: .25rem; }
+.d-title { font-size: 11px; color: var(--gold); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .75rem; }
+.d-desc { font-size: 13px; color: rgba(255,255,255,.4); line-height: 1.65; }
 
-  .hero-eyebrow {
-    font-family: var(--font-body);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 1.5rem;
-    position: relative;
-  }
-  .hero-eyebrow::before, .hero-eyebrow::after {
-    content: '✦';
-    margin: 0 12px;
-    opacity: 0.5;
-  }
-  .hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 8vw, 6.5rem);
-    font-weight: 600;
-    color: white;
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-    position: relative;
-    margin-bottom: 0.5rem;
-  }
-  .hero-title em {
-    font-style: italic;
-    color: var(--gold);
-  }
-  .hero-subtitle {
-    font-family: var(--font-display);
-    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
-    color: rgba(255,255,255,0.45);
-    font-style: italic;
-    margin-bottom: 2.5rem;
-    position: relative;
-  }
-  .hero-mantra {
-    font-family: var(--font-display);
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    color: var(--gold);
-    letter-spacing: 0.1em;
-    margin-bottom: 3rem;
-    position: relative;
-    opacity: 0.85;
-  }
-  .hero-cta {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    position: relative;
-  }
-  .btn-primary {
-    background: var(--saffron);
-    color: white;
-    text-decoration: none;
-    padding: 14px 32px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: background 0.2s;
-  }
-  .btn-primary:hover { background: #c5520a; }
-  .btn-outline {
-    border: 1px solid rgba(200,145,26,0.4);
-    color: var(--gold);
-    text-decoration: none;
-    padding: 14px 32px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .btn-outline:hover { border-color: var(--gold); background: rgba(200,145,26,0.08); }
+/* ── EVENTS ── */
+.events-section { background: var(--cream); padding: 6rem 2rem; }
 
-  /* ── TODAY TIMINGS ── */
-  .timings-bar {
-    background: var(--gold);
-    padding: 14px 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-  .timings-bar .label {
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-    font-weight: 500;
-  }
-  .timings-bar .timing-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: white;
-    font-size: 14px;
-  }
-  .timings-bar .timing-name {
-    font-family: var(--font-display);
-    font-style: italic;
-    color: rgba(255,255,255,0.8);
-    font-size: 15px;
-  }
-  .timings-bar .timing-time {
-    font-weight: 500;
-  }
-  .timings-divider {
-    width: 1px;
-    height: 20px;
-    background: rgba(255,255,255,0.25);
-  }
+/* ── RATHA ── */
+.ratha-section { background: var(--night); padding: 6rem 2rem; position: relative; overflow: hidden; text-align: center; }
+.ratha-section::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 100%,rgba(232,97,10,.2) 0%,transparent 60%); }
+.ratha-section .container { position: relative; }
 
-  /* ── SECTIONS ── */
-  section { padding: 5rem 2rem; }
-  .container { max-width: 1100px; margin: 0 auto; }
+/* ── VISIT ── */
+.visit-section { background: var(--white); padding: 6rem 2rem; }
 
-  .section-eyebrow {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--saffron);
-    margin-bottom: 0.75rem;
-    font-weight: 500;
-  }
-  .section-title {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 600;
-    line-height: 1.15;
-    margin-bottom: 1rem;
-    color: var(--night);
-  }
-  .section-title em { font-style: italic; color: var(--saffron); }
-  .section-body {
-    font-size: 16px;
-    color: var(--text-mid);
-    max-width: 580px;
-    line-height: 1.75;
-  }
-
-  /* ── ABOUT JAGANNATH ── */
-  .about { background: var(--white); }
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: center;
-  }
-  .deity-trio {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-  }
-  .deity-card {
-    flex: 1;
-    text-align: center;
-    padding: 1.5rem 1rem;
-    border-radius: 8px;
-  }
-  .deity-face {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    margin: 0 auto 12px;
-    border: 3px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-  }
-  .deity-face.jagannath { background: #1A1008; border-color: var(--gold); }
-  .deity-face.baladeva { background: #F5F0E8; border-color: rgba(200,145,26,0.3); }
-  .deity-face.subhadra { background: #FFF0D0; border-color: rgba(232,97,10,0.3); }
-  .deity-name {
-    font-family: var(--font-display);
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--night);
-    margin-bottom: 4px;
-  }
-  .deity-role {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-  }
-  .about-quote {
-    border-left: 3px solid var(--gold);
-    padding-left: 1.5rem;
-    margin-top: 2rem;
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 1.1rem;
-    color: var(--text-mid);
-    line-height: 1.6;
-  }
-  .about-quote cite {
-    display: block;
-    margin-top: 8px;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-style: normal;
-    color: var(--text-muted);
-  }
-
-  /* ── EVENTS ── */
-  .events { background: var(--cream); }
-  .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 3rem;
-  }
-  .event-card {
-    background: white;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .event-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(200,145,26,0.1); }
-  .event-header {
-    background: var(--night);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .event-date-box {
-    text-align: center;
-    min-width: 48px;
-  }
-  .event-date-box .day {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--gold);
-    line-height: 1;
-  }
-  .event-date-box .month {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-  }
-  .event-title-wrap .event-name {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    color: white;
-    font-weight: 600;
-  }
-  .event-title-wrap .event-type {
-    font-size: 11px;
-    color: var(--saffron);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-  .event-body {
-    padding: 1.25rem 1.5rem;
-  }
-  .event-desc {
-    font-size: 14px;
-    color: var(--text-mid);
-    line-height: 1.6;
-    margin-bottom: 12px;
-  }
-  .event-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  /* ── RATHA YATRA HIGHLIGHT ── */
-  .ratha {
-    background: var(--night);
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-  }
-  .ratha::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 100%, rgba(232,97,10,0.2) 0%, transparent 60%);
-  }
-  .ratha .section-eyebrow { color: var(--gold); }
-  .ratha .section-title { color: white; }
-  .ratha .section-title em { color: var(--saffron); }
-  .ratha .section-body { color: rgba(255,255,255,0.55); margin: 0 auto 3rem; }
-  .chariot-row {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 3rem;
-    flex-wrap: wrap;
-    position: relative;
-  }
-  .chariot-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(200,145,26,0.2);
-    border-radius: 8px;
-    padding: 2rem 1.5rem;
-    width: 200px;
-    text-align: center;
-  }
-  .chariot-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-  .chariot-deity {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: white;
-    margin-bottom: 4px;
-  }
-  .chariot-name {
-    font-size: 12px;
-    color: var(--gold);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  /* ── DONATE ── */
-  .donate { background: var(--saffron-light); }
-  .donate-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-  }
-  .seva-list { list-style: none; margin-top: 2rem; }
-  .seva-list li {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    color: var(--text-mid);
-  }
-  .seva-list li:last-child { border-bottom: none; }
-  .seva-list .seva-name { font-family: var(--font-display); font-size: 16px; font-style: italic; }
-  .seva-list .seva-amount { font-weight: 500; color: var(--saffron); font-size: 14px; }
-  .donate-box {
-    background: white;
-    border-radius: 12px;
-    padding: 2.5rem;
-    border: 1px solid var(--border);
-  }
-  .donate-box h3 {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
-    color: var(--night);
-  }
-  .donate-box p {
-    font-size: 14px;
-    color: var(--text-mid);
-    line-height: 1.7;
-    margin-bottom: 1.5rem;
-  }
-  .donate-methods {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .donate-method {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    color: var(--text);
-    text-decoration: none;
-    transition: border-color 0.2s;
-  }
-  .donate-method:hover { border-color: var(--saffron); }
-  .donate-method .method-icon { font-size: 20px; }
-  .donate-method .method-label { font-weight: 500; }
-  .donate-method .method-desc { font-size: 12px; color: var(--text-muted); }
-
-  /* ── VISIT ── */
-  .visit { background: white; }
-  .visit-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: start;
-  }
-  .info-block { margin-bottom: 2rem; }
-  .info-block h4 {
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--saffron);
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
-  .info-block p {
-    font-size: 15px;
-    color: var(--text-mid);
-    line-height: 1.65;
-  }
-  .schedule-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-  .schedule-table th {
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding: 8px 0;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  .schedule-table td {
-    padding: 10px 0;
-    font-size: 14px;
-    color: var(--text-mid);
-    border-bottom: 1px solid rgba(200,145,26,0.08);
-    vertical-align: top;
-  }
-  .schedule-table td:first-child {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 15px;
-    color: var(--night);
-    width: 55%;
-  }
-  .schedule-table td:last-child {
-    font-weight: 500;
-    color: var(--saffron);
-  }
-  .map-placeholder {
-    background: var(--gold-light);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    height: 280px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--text-muted);
-    font-size: 14px;
-  }
-  .map-placeholder .map-icon { font-size: 2rem; opacity: 0.5; }
-
-  /* ── FOOTER ── */
-  footer {
-    background: var(--night);
-    padding: 3rem 2rem;
-    text-align: center;
-  }
-  .footer-logo {
-    font-family: var(--font-display);
-    font-size: 1.8rem;
-    color: var(--gold);
-    margin-bottom: 0.5rem;
-  }
-  .footer-mantra {
-    font-family: var(--font-display);
-    font-style: italic;
-    color: rgba(255,255,255,0.3);
-    font-size: 0.95rem;
-    letter-spacing: 0.08em;
-    margin-bottom: 2rem;
-  }
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-  }
-  .footer-links a {
-    color: rgba(255,255,255,0.45);
-    text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-  .footer-links a:hover { color: var(--gold); }
-  .footer-copy {
-    font-size: 12px;
-    color: rgba(255,255,255,0.2);
-  }
-
-  /* ── LANGUAGE CONTENT ── */
-  [data-lang] { display: none; }
-  [data-lang].active { display: block; }
-  .inline-lang { display: none; }
-  .inline-lang.active { display: inline; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    nav { padding: 0 1rem; }
-    .nav-links { display: none; }
-    section { padding: 3.5rem 1.25rem; }
-    .about-grid, .donate-grid, .visit-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-    .deity-trio { gap: 0.5rem; }
-    .timings-bar { gap: 1rem; padding: 12px 1rem; }
-    .timings-divider { display: none; }
-    .chariot-card { width: 160px; }
-  }
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; min-height: auto; }
+  .hero-right { height: 55vw; max-height: 400px; order: -1; }
+  .hero-right::before { background: linear-gradient(to bottom, var(--night) 0%, transparent 30%), linear-gradient(to top, var(--night) 0%, transparent 20%); }
+  .hero-left { padding: 3rem 1.5rem 4rem; }
+  .hero-left::after { display: none; }
+  .about-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about-image-stack { max-width: 340px; margin: 0 auto; }
+  .deity-strip { flex-direction: column; gap: 1px; align-items: center; }
+  .d-card { max-width: 100%; width: 100%; }
+}
 </style>
 </head>
 <body>
 
-<!-- Language bar -->
 <div class="lang-bar">
   <button class="lang-btn" onclick="setLang('da')">Dansk</button>
   <button class="lang-btn active" onclick="setLang('en')">English</button>
 </div>
 
-<!-- Navigation -->
 <nav>
-  <a class="nav-logo" href="#">
-    Jagannath<span>Danmark</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#about" data-da="Om Jagannath" data-en="About">About</a></li>
-    <li><a href="#events" data-da="Begivenheder" data-en="Events">Events</a></li>
-    <li><a href="#ratha" data-da="Ratha-Yatra" data-en="Ratha-Yatra">Ratha-Yatra</a></li>
-    <li><a href="#visit" data-da="Besøg os" data-en="Visit">Visit</a></li>
-    <li><a href="#donate" class="nav-donate" data-da="Donér Seva" data-en="Donate Seva">Donate Seva</a></li>
+  <a class="nav-logo" href="index.html">Jagannath<span> Danmark</span></a>
+  <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+  <ul class="nav-links" id="nav-menu">
+    <li><a href="about.html"><span class="t-en">About</span><span class="t-da">Om os</span></a></li>
+    <li><a href="schedule.html"><span class="t-en">Schedule</span><span class="t-da">Program</span></a></li>
+    <li><a href="events.html"><span class="t-en">Events</span><span class="t-da">Begivenheder</span></a></li>
+    <li><a href="gallery.html"><span class="t-en">Gallery</span><span class="t-da">Galleri</span></a></li>
+    <li><a href="visit.html"><span class="t-en">Visit</span><span class="t-da">Besøg</span></a></li>
+    <li><a href="donate.html" class="nav-donate"><span class="t-en">Donate Seva</span><span class="t-da">Donér Seva</span></a></li>
   </ul>
 </nav>
 
-<!-- Hero -->
+<!-- ══ HERO ══ -->
 <section class="hero">
-  <div class="mandala-ring"></div>
-  <div class="mandala-ring"></div>
-  <div class="mandala-ring"></div>
-
-  <div class="hero-eyebrow">
-    <span data-lang="da" class="active">Velkommen til Jagannath Danmarks hellige portal</span>
-    <span data-lang="en" class="active">Welcome to the sacred portal of Jagannath Denmark</span>
+  <!-- Left: text -->
+  <div class="hero-left">
+    <div class="hero-om">ॐ</div>
+    <div class="hero-eyebrow">
+      <span class="t-en">Copenhagen · Denmark · Est. 1979</span>
+      <span class="t-da">København · Danmark · Grundlagt 1979</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="t-en">Lord of</span>
+      <span class="t-da">Universets</span>
+      <strong>
+        <span class="t-en">the Universe</span>
+        <span class="t-da">Herre</span>
+      </strong>
+    </h1>
+    <p class="hero-subtitle">Jagannath · Baladeva · Subhadra</p>
+    <div class="hero-divider"></div>
+    <p class="hero-mantra">
+      <span>Hare Krishna Hare Krishna</span><br>
+      <span>Krishna Krishna Hare Hare</span><br>
+      <span>Hare Rama Hare Rama</span><br>
+      <span>Rama Rama Hare Hare</span>
+    </p>
+    <div class="hero-cta">
+      <a href="visit.html" class="btn-primary">
+        <span class="t-en">Plan Your Visit</span>
+        <span class="t-da">Planlæg dit besøg</span>
+      </a>
+      <a href="donate.html" class="btn-outline">
+        <span class="t-en">Offer Seva</span>
+        <span class="t-da">Giv Seva</span>
+      </a>
+    </div>
   </div>
 
-  <h1 class="hero-title">
-    <em>Jagannath</em><br>
-    <span data-lang="en" class="inline-lang active">Lord of the Universe</span>
-    <span data-lang="da" class="inline-lang">Universets Herre</span>
-  </h1>
-
-  <p class="hero-subtitle">
-    <span data-lang="en" class="inline-lang active">Jagannath · Baladeva · Subhadra</span>
-    <span data-lang="da" class="inline-lang">Jagannath · Baladeva · Subhadra</span>
-  </p>
-
-  <p class="hero-mantra">Hare Krishna Hare Krishna · Krishna Krishna Hare Hare</p>
-
-  <div class="hero-cta">
-    <a href="#visit" class="btn-primary">
-      <span data-lang="en" class="inline-lang active">Today's Timings</span>
-      <span data-lang="da" class="inline-lang">Dagens tider</span>
-    </a>
-    <a href="#about" class="btn-outline">
-      <span data-lang="en" class="inline-lang active">Discover Jagannath</span>
-      <span data-lang="da" class="inline-lang">Lær om Jagannath</span>
-    </a>
+  <!-- Right: deity image -->
+  <div class="hero-right">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/3_Odisha_Hindu_deities_Jagannath_Baladeva_Subhadra.jpg/1200px-3_Odisha_Hindu_deities_Jagannath_Baladeva_Subhadra.jpg"
+      alt="Lord Jagannath, Baladeva and Subhadra — the three deities"
+      loading="eager"
+      onerror="this.parentElement.style.background='linear-gradient(135deg,#2E1F0D,#1A1008)';this.style.display='none'"
+    >
   </div>
 </section>
 
-<!-- Today's timings bar -->
+<!-- ══ TIMINGS BAR ══ -->
 <div class="timings-bar">
-  <span class="label">
-    <span data-lang="en" class="inline-lang active">Today</span>
-    <span data-lang="da" class="inline-lang">I dag</span>
-  </span>
-  <div class="timing-item">
-    <span class="timing-name">Mangala Aarti</span>
-    <span class="timing-time">4:30</span>
+  <div class="tb-label">
+    <span class="t-en">Today</span>
+    <span class="t-da">I dag</span>
   </div>
-  <div class="timings-divider"></div>
-  <div class="timing-item">
-    <span class="timing-name">Darshan</span>
-    <span class="timing-time">7:30 – 12:30</span>
+  <div class="tb-item">
+    <span class="tb-name">Mangala Aarti</span>
+    <span class="tb-time">4:30</span>
   </div>
-  <div class="timings-divider"></div>
-  <div class="timing-item">
-    <span class="timing-name">Raj Bhog Aarti</span>
-    <span class="timing-time">12:30</span>
+  <div class="tb-item">
+    <span class="tb-name">Tulasi Puja</span>
+    <span class="tb-time">5:00</span>
   </div>
-  <div class="timings-divider"></div>
-  <div class="timing-item">
-    <span class="timing-name">Sandhya Aarti</span>
-    <span class="timing-time">18:30</span>
+  <div class="tb-item">
+    <span class="tb-name">Japa</span>
+    <span class="tb-time">5:15</span>
   </div>
-  <div class="timings-divider"></div>
-  <div class="timing-item">
-    <span class="timing-name">Shayana Aarti</span>
-    <span class="timing-time">20:30</span>
+  <div class="tb-item">
+    <span class="tb-name">Guru Puja</span>
+    <span class="tb-time">7:25</span>
+  </div>
+  <div class="tb-item">
+    <span class="tb-name">Srimad Bhagavatam</span>
+    <span class="tb-time">7:45–8:45</span>
+  </div>
+  <div class="tb-item">
+    <span class="tb-name">
+      <span class="t-en">Temple closed</span>
+      <span class="t-da">Templet lukket</span>
+    </span>
+    <span class="tb-time">13:00–18:00</span>
+    <span class="tb-closed"><span class="t-en">rest period</span><span class="t-da">hvileperiode</span></span>
+  </div>
+  <div class="tb-item">
+    <span class="tb-name">Gaura Aarti</span>
+    <span class="tb-time">19:00</span>
+  </div>
+  <div class="tb-item" style="border-right:none">
+    <span class="tb-name">
+      <span class="t-en">Sun Feast</span>
+      <span class="t-da">Søndagsfest</span>
+    </span>
+    <span class="tb-time">15:00–19:00</span>
+    <span class="tb-closed"><span class="t-en">Sundays only</span><span class="t-da">Kun søndage</span></span>
   </div>
 </div>
 
-<!-- About Jagannath -->
-<section class="about" id="about">
-  <div class="container">
-    <div class="about-grid">
-      <div>
-        <p class="section-eyebrow">
-          <span data-lang="en" class="inline-lang active">The Three Lords</span>
-          <span data-lang="da" class="inline-lang">De tre Herrer</span>
-        </p>
-        <h2 class="section-title">
-          <span data-lang="en" class="inline-lang active">Who is <em>Jagannath?</em></span>
-          <span data-lang="da" class="inline-lang">Hvem er <em>Jagannath?</em></span>
-        </h2>
-        <p class="section-body">
-          <span data-lang="en" class="inline-lang active">Lord Jagannath — "Jagat" (universe) + "Natha" (Lord) — is the all-merciful form of Lord Krishna, worshipped since ancient times in Puri, Odisha. His distinctive form, with large round eyes that see all, represents the absolute totality of existence. He stands with His brother Baladeva and sister Subhadra, blessing all who come to Him regardless of caste, creed, or origin.</span>
-          <span data-lang="da" class="inline-lang">Herre Jagannath — "Jagat" (univers) + "Natha" (Herre) — er den altbarmhjertige form af Herre Krishna, der er blevet tilbedt siden oldtiden i Puri, Odisha. Hans karakteristiske form, med store runde øjne der ser alt, repræsenterer eksistensens absolutte totalitet. Han står med sin bror Baladeva og søster Subhadra og velsigner alle, der kommer til Ham, uanset kaste, tro eller oprindelse.</span>
-        </p>
-        <blockquote class="about-quote">
-          <span data-lang="en" class="inline-lang active">"The Lord of the universe accepts everyone. There is no restriction. This is the special mercy of Lord Jagannath."</span>
-          <span data-lang="da" class="inline-lang">"Universets Herre accepterer alle. Der er ingen begrænsning. Dette er den særlige nåde fra Herre Jagannath."</span>
-          <cite>— Srila Prabhupada</cite>
-        </blockquote>
+<!-- ══ ABOUT ══ -->
+<section class="about-section">
+  <div class="about-inner">
+    <div>
+      <p class="eyebrow"><span class="t-en">The Lord of All</span><span class="t-da">Alles Herre</span></p>
+      <h2 class="sec-title" style="font-size:clamp(2.2rem,4vw,3.2rem)">
+        <span class="t-en">Who is <em>Jagannath?</em></span>
+        <span class="t-da">Hvem er <em>Jagannath?</em></span>
+      </h2>
+      <p class="sec-body" style="max-width:100%;margin-bottom:1.5rem">
+        <span class="t-en">Lord Jagannath — "Jagat" (universe) + "Natha" (Lord) — is the all-merciful form of Lord Krishna worshipped for thousands of years in Puri, Odisha. His distinctive form, with large compassionate eyes that see every soul equally, represents Krishna in His most accessible, non-exclusive aspect. He stands with His elder brother Baladeva and beloved sister Subhadra, welcoming all who come — regardless of background, belief, or origin.</span>
+        <span class="t-da">Herre Jagannath — "Jagat" (univers) + "Natha" (Herre) — er den altbarmhjertige form af Herre Krishna, tilbedt i tusinder af år i Puri, Odisha. Hans karakteristiske form med store medfølende øjne, der ser alle sjæle ens, repræsenterer Krishna i Hans mest tilgængelige aspekt. Han står med sin storebror Baladeva og elskede søster Subhadra og byder alle velkommen.</span>
+      </p>
+      <blockquote class="pull-quote">
+        <span class="t-en">"The Lord of the universe accepts everyone. There is no restriction. This is the special mercy of Lord Jagannath."</span>
+        <span class="t-da">"Universets Herre accepterer alle. Der er ingen begrænsning. Dette er den særlige nåde fra Herre Jagannath."</span>
+        <cite>— Srila Prabhupada</cite>
+      </blockquote>
+      <div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
+        <a href="about.html" class="btn-primary"><span class="t-en">Learn more</span><span class="t-da">Læs mere</span></a>
+        <a href="schedule.html" class="btn-outline-dark" style="border-color:rgba(26,16,8,.2)">
+          <span class="t-en">Full schedule →</span><span class="t-da">Fuldt program →</span>
+        </a>
       </div>
-      <div>
-        <div class="deity-trio">
-          <div class="deity-card">
-            <div class="deity-face jagannath">🪬</div>
-            <div class="deity-name">Jagannath</div>
-            <div class="deity-role">
-              <span data-lang="en" class="inline-lang active">Lord of the Universe</span>
-              <span data-lang="da" class="inline-lang">Universets Herre</span>
-            </div>
-          </div>
-          <div class="deity-card">
-            <div class="deity-face baladeva">🌸</div>
-            <div class="deity-name">Baladeva</div>
-            <div class="deity-role">
-              <span data-lang="en" class="inline-lang active">The Strength of God</span>
-              <span data-lang="da" class="inline-lang">Guds styrke</span>
-            </div>
-          </div>
-          <div class="deity-card">
-            <div class="deity-face subhadra">🌼</div>
-            <div class="deity-name">Subhadra</div>
-            <div class="deity-role">
-              <span data-lang="en" class="inline-lang active">The Auspicious One</span>
-              <span data-lang="da" class="inline-lang">Den lykkebringende</span>
-            </div>
-          </div>
-        </div>
+    </div>
+    <div class="about-image-stack">
+      <div class="about-img-frame">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/3_Odisha_Hindu_deities_Jagannath_Baladeva_Subhadra.jpg/800px-3_Odisha_Hindu_deities_Jagannath_Baladeva_Subhadra.jpg"
+          alt="Lord Jagannath, Baladeva and Subhadra"
+          loading="lazy"
+          onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:5rem;opacity:.3\'>🪬</div>'"
+        >
+      </div>
+      <div class="about-badge">
+        <span class="t-en">Copenhagen Temple · Est. 1979</span>
+        <span class="t-da">Templet i København · Grundlagt 1979</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Events -->
-<section class="events" id="events">
+<!-- ══ DEITY STRIP ══ -->
+<div class="deity-strip">
+  <div class="d-card">
+    <div class="d-face jf">🪬</div>
+    <div class="d-name">Jagannath</div>
+    <div class="d-title"><span class="t-en">Lord of the Universe</span><span class="t-da">Universets Herre</span></div>
+    <div class="d-desc"><span class="t-en">The Supreme Lord in His most merciful, all-accepting form. Black-complexioned, representing Lord Krishna.</span><span class="t-da">Den Højeste Herre i Sin mest barmhjertige, alt-accepterende form. Sortfarvet, der repræsenterer Herre Krishna.</span></div>
+  </div>
+  <div class="d-card">
+    <div class="d-face bf">🌸</div>
+    <div class="d-name">Baladeva</div>
+    <div class="d-title"><span class="t-en">Strength of God</span><span class="t-da">Guds styrke</span></div>
+    <div class="d-desc"><span class="t-en">Krishna's elder brother, the source of all spiritual and material strength. White-complexioned, full of grace.</span><span class="t-da">Krishnas storebror, kilden til al åndelig og materiel styrke. Hvidfarvet, fuld af nåde.</span></div>
+  </div>
+  <div class="d-card">
+    <div class="d-face sf">🌼</div>
+    <div class="d-name">Subhadra</div>
+    <div class="d-title"><span class="t-en">The Auspicious One</span><span class="t-da">Den lykkebringende</span></div>
+    <div class="d-desc"><span class="t-en">Krishna's beloved sister, the goddess of auspiciousness and devotion. Yellow-complexioned, radiating warmth.</span><span class="t-da">Krishnas elskede søster, lykkens gudinde. Gulfarvet, der udstråler varme og hengivenhed.</span></div>
+  </div>
+</div>
+
+<!-- ══ EVENTS ══ -->
+<section class="events-section">
   <div class="container">
-    <p class="section-eyebrow">
-      <span data-lang="en" class="inline-lang active">Upcoming</span>
-      <span data-lang="da" class="inline-lang">Kommende</span>
-    </p>
-    <h2 class="section-title">
-      <span data-lang="en" class="inline-lang active">Festivals &amp; <em>Events</em></span>
-      <span data-lang="da" class="inline-lang">Festivaler &amp; <em>Begivenheder</em></span>
-    </h2>
+    <p class="eyebrow"><span class="t-en">Upcoming</span><span class="t-da">Kommende</span></p>
+    <h2 class="sec-title"><span class="t-en">Festivals &amp; <em>Events</em></span><span class="t-da">Festivaler &amp; <em>Begivenheder</em></span></h2>
     <div class="events-grid">
       <div class="event-card">
-        <div class="event-header">
-          <div class="event-date-box">
-            <div class="day">18</div>
-            <div class="month">Aug</div>
-          </div>
-          <div class="event-title-wrap">
-            <div class="event-name">Janmashtami</div>
-            <div class="event-type">
-              <span data-lang="en" class="inline-lang active">Annual Festival</span>
-              <span data-lang="da" class="inline-lang">Årlig festival</span>
-            </div>
-          </div>
-        </div>
-        <div class="event-body">
-          <p class="event-desc">
-            <span data-lang="en" class="inline-lang active">Celebration of Lord Krishna's appearance. Midnight abhishek, kirtans, and feast prasadam for all.</span>
-            <span data-lang="da" class="inline-lang">Fejring af Herre Krishnas tilsynekomst. Midnat abhishek, kirtaner og prasadam for alle.</span>
-          </p>
-          <div class="event-meta">🕐 18:00 – 24:00</div>
-        </div>
+        <div class="event-head"><div class="date-box"><div class="day">18</div><div class="mon">Aug</div></div><div><div class="ev-name">Janmashtami</div><div class="ev-type"><span class="t-en">Krishna's Appearance Day</span><span class="t-da">Krishnas tilsynekomstdag</span></div></div></div>
+        <div class="event-body-inner"><p><span class="t-en">Midnight celebration of Lord Krishna's appearance. Kirtan, abhishek ceremony and prasadam feast for all.</span><span class="t-da">Midnatsfejring af Herre Krishnas tilsynekomst. Kirtan, abhishek og prasadam for alle.</span></p><div class="ev-meta">🕐 18:00 – 24:00</div></div>
       </div>
       <div class="event-card">
-        <div class="event-header">
-          <div class="event-date-box">
-            <div class="day">26</div>
-            <div class="month">Aug</div>
-          </div>
-          <div class="event-title-wrap">
-            <div class="event-name">Radhashtami</div>
-            <div class="event-type">
-              <span data-lang="en" class="inline-lang active">Sacred Appearance Day</span>
-              <span data-lang="da" class="inline-lang">Hellig dag</span>
-            </div>
-          </div>
-        </div>
-        <div class="event-body">
-          <p class="event-desc">
-            <span data-lang="en" class="inline-lang active">Appearance day of Srimati Radharani. Special bhajans and deity decoration programme.</span>
-            <span data-lang="da" class="inline-lang">Srimati Radharanis tilsynekomstdag. Særlige bhajaner og guddommelig dekorationsprogram.</span>
-          </p>
-          <div class="event-meta">🕐 10:00 – 20:00</div>
-        </div>
+        <div class="event-head"><div class="date-box"><div class="day">26</div><div class="mon">Aug</div></div><div><div class="ev-name">Radhashtami</div><div class="ev-type"><span class="t-en">Radharani's Appearance Day</span><span class="t-da">Radharanis tilsynekomstdag</span></div></div></div>
+        <div class="event-body-inner"><p><span class="t-en">Special bhajans, lecture on Radharani's glories and beautiful deity decoration programme.</span><span class="t-da">Særlige bhajaner, foredrag om Radharanis herligheder og gudsdekoration.</span></p><div class="ev-meta">🕐 10:00 – 20:00</div></div>
       </div>
       <div class="event-card">
-        <div class="event-header">
-          <div class="event-date-box">
-            <div class="day">02</div>
-            <div class="month">Sep</div>
-          </div>
-          <div class="event-title-wrap">
-            <div class="event-name">Sunday Feast</div>
-            <div class="event-type">
-              <span data-lang="en" class="inline-lang active">Weekly Programme</span>
-              <span data-lang="da" class="inline-lang">Ugentligt program</span>
-            </div>
-          </div>
-        </div>
-        <div class="event-body">
-          <p class="event-desc">
-            <span data-lang="en" class="inline-lang active">Weekly kirtan, lecture from Bhagavad Gita, and free vegetarian prasadam feast. All welcome.</span>
-            <span data-lang="da" class="inline-lang">Ugentlig kirtan, foredrag fra Bhagavad Gita og gratis vegetarisk prasadam. Alle er velkomne.</span>
-          </p>
-          <div class="event-meta">🕐 16:00 – 19:30</div>
-        </div>
+        <div class="event-head"><div class="date-box"><div class="day">Søn</div><div class="mon">Ugentlig</div></div><div><div class="ev-name">Sunday Feast</div><div class="ev-type"><span class="t-en">Every Sunday · Free</span><span class="t-da">Hver søndag · Gratis</span></div></div></div>
+        <div class="event-body-inner"><p><span class="t-en">Bhajan 15:00 · Lecture 15:45 · Kirtan 16:30 · Free vegetarian prasadam feast 17:00. All welcome!</span><span class="t-da">Bhajan 15:00 · Foredrag 15:45 · Kirtan 16:30 · Gratis vegetarisk prasadam 17:00. Alle velkomne!</span></p><div class="ev-meta">🕐 15:00 – 19:00</div></div>
       </div>
+    </div>
+    <div style="text-align:center;margin-top:2.5rem">
+      <a href="events.html" class="btn-outline-dark"><span class="t-en">All events →</span><span class="t-da">Alle begivenheder →</span></a>
     </div>
   </div>
 </section>
 
-<!-- Ratha-Yatra -->
-<section class="ratha" id="ratha">
+<!-- ══ RATHA-YATRA ══ -->
+<section class="ratha-section">
   <div class="container">
-    <p class="section-eyebrow">Ratha-Yatra</p>
-    <h2 class="section-title">
-      <span data-lang="en" class="inline-lang active">The Festival of <em>Chariots</em></span>
-      <span data-lang="da" class="inline-lang">Vognfestivalen — <em>Ratha-Yatra</em></span>
-    </h2>
-    <p class="section-body">
-      <span data-lang="en" class="inline-lang active">One of the world's oldest and most joyous festivals. Lord Jagannath, Baladeva, and Subhadra ride magnificent chariots through the streets, showering blessings upon all who witness or participate. Join us in Copenhagen for this extraordinary celebration.</span>
-      <span data-lang="da" class="inline-lang">En af verdens ældste og mest glædesfulde festivaler. Herre Jagannath, Baladeva og Subhadra rider på prægtige vogne gennem gaderne og overdænger alle med velsignelser. Deltag i os i København for denne ekstraordinære fejring.</span>
+    <p class="eyebrow gold-eye">Ratha-Yatra</p>
+    <h2 class="sec-title white-title"><span class="t-en">The Festival of <em>Chariots</em></span><span class="t-da">Vognfestivalen — <em>Ratha-Yatra</em></span></h2>
+    <p class="sec-body muted-body" style="margin:0 auto 2.5rem;max-width:560px">
+      <span class="t-en">Once a year, Lord Jagannath, Baladeva and Subhadra ride magnificent chariots through the streets of Copenhagen — an ancient tradition stretching back thousands of years to Puri, India. Everyone who pulls the ropes or witnesses the procession receives the Lord's blessing.</span>
+      <span class="t-da">En gang om året rider Herre Jagannath, Baladeva og Subhadra på prægtige vogne gennem Københavns gader — en ældgammel tradition fra Puri, Indien. Alle der trækker tovene eller overværer processionen modtager Herrens velsignelse.</span>
     </p>
     <div class="chariot-row">
-      <div class="chariot-card">
-        <div class="chariot-icon">🏛️</div>
-        <div class="chariot-deity">Nandighosh</div>
-        <div class="chariot-name">Jagannath's Chariot</div>
-      </div>
-      <div class="chariot-card">
-        <div class="chariot-icon">⚪</div>
-        <div class="chariot-deity">Taladhwaja</div>
-        <div class="chariot-name">Baladeva's Chariot</div>
-      </div>
-      <div class="chariot-card">
-        <div class="chariot-icon">🌸</div>
-        <div class="chariot-deity">Darpadalana</div>
-        <div class="chariot-name">Subhadra's Chariot</div>
-      </div>
+      <div class="chariot-card"><div class="c-icon">🏛️</div><div class="c-deity">Nandighosh</div><div class="c-name">Jagannath's Chariot</div></div>
+      <div class="chariot-card"><div class="c-icon">⚪</div><div class="c-deity">Taladhwaja</div><div class="c-name">Baladeva's Chariot</div></div>
+      <div class="chariot-card"><div class="c-icon">🌸</div><div class="c-deity">Darpadalana</div><div class="c-name">Subhadra's Chariot</div></div>
     </div>
   </div>
 </section>
 
-<!-- Visit -->
-<section class="visit" id="visit">
-  <div class="container">
-    <div class="visit-grid">
-      <div>
-        <p class="section-eyebrow">
-          <span data-lang="en" class="inline-lang active">Plan your visit</span>
-          <span data-lang="da" class="inline-lang">Planlæg dit besøg</span>
-        </p>
-        <h2 class="section-title">
-          <span data-lang="en" class="inline-lang active"><em>Come</em> &amp; Take Darshan</span>
-          <span data-lang="da" class="inline-lang"><em>Kom</em> &amp; Tag Darshan</span>
-        </h2>
-
-        <div class="info-block">
-          <h4>
-            <span data-lang="en" class="inline-lang active">Address</span>
-            <span data-lang="da" class="inline-lang">Adresse</span>
-          </h4>
-          <p>
-            <span data-lang="en" class="inline-lang active">To be confirmed · Copenhagen, Denmark</span>
-            <span data-lang="da" class="inline-lang">Bekræftes snart · København, Danmark</span>
-          </p>
-        </div>
-
-        <div class="info-block">
-          <h4>
-            <span data-lang="en" class="inline-lang active">Daily Schedule</span>
-            <span data-lang="da" class="inline-lang">Dagligt program</span>
-          </h4>
-          <table class="schedule-table">
-            <thead>
-              <tr>
-                <th>
-                  <span data-lang="en" class="inline-lang active">Programme</span>
-                  <span data-lang="da" class="inline-lang">Program</span>
-                </th>
-                <th>
-                  <span data-lang="en" class="inline-lang active">Time</span>
-                  <span data-lang="da" class="inline-lang">Tid</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Mangala Aarti</td><td>4:30</td></tr>
-              <tr><td>Tulasi Puja</td><td>5:00</td></tr>
-              <tr><td>Guru Puja</td><td>7:15</td></tr>
-              <tr><td>Srimad Bhagavatam</td><td>8:00 – 9:00</td></tr>
-              <tr><td>Raj Bhog Aarti</td><td>12:30</td></tr>
-              <tr><td>Sandhya Aarti</td><td>18:30</td></tr>
-              <tr><td>Bhagavad Gita</td><td>19:00 – 20:00</td></tr>
-              <tr><td>Shayana Aarti</td><td>20:30</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="info-block">
-          <h4>
-            <span data-lang="en" class="inline-lang active">First time visiting?</span>
-            <span data-lang="da" class="inline-lang">Første besøg?</span>
-          </h4>
-          <p>
-            <span data-lang="en" class="inline-lang active">Remove shoes at the entrance. Dress modestly. All are welcome — no prior experience or belief required. Prasadam (sacred food) is offered freely after each programme.</span>
-            <span data-lang="da" class="inline-lang">Tag skoene af ved indgangen. Klæd dig beskedent. Alle er velkomne — ingen tidligere erfaring eller tro kræves. Prasadam (hellig mad) tilbydes gratis efter hvert program.</span>
-          </p>
-        </div>
+<!-- ══ VISIT ══ -->
+<section class="visit-section">
+  <div class="container grid-2" style="align-items:start;gap:3.5rem">
+    <div>
+      <p class="eyebrow"><span class="t-en">Find us</span><span class="t-da">Find os</span></p>
+      <h2 class="sec-title"><span class="t-en"><em>Come</em> &amp; Take Darshan</span><span class="t-da"><em>Kom</em> &amp; Tag Darshan</span></h2>
+      <div class="info-block"><h4 class="info-label"><span class="t-en">Address</span><span class="t-da">Adresse</span></h4><p>Skjulhøj Allé 44<br>2720 København (Brønshøj-Husum)</p></div>
+      <div class="info-block"><h4 class="info-label"><span class="t-en">Phone</span><span class="t-da">Telefon</span></h4><p><a href="tel:+4548286446" class="tel-link">48 28 64 46</a></p></div>
+      <div class="info-block"><h4 class="info-label"><span class="t-en">Hours</span><span class="t-da">Åbningstider</span></h4><p><span class="t-en">Open 4:30 AM · Closed 13:00–18:00 · Evening programme from 19:00</span><span class="t-da">Åbner 4:30 · Lukket 13:00–18:00 · Aftenprogram fra 19:00</span></p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.75rem">
+        <a href="visit.html" class="btn-primary"><span class="t-en">Plan visit</span><span class="t-da">Planlæg besøg</span></a>
+        <a href="https://wa.me/4548286446" target="_blank" class="btn-whatsapp">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
       </div>
-      <div>
-        <div class="map-placeholder">
-          <div class="map-icon">📍</div>
-          <p>
-            <span data-lang="en" class="inline-lang active">Map will appear here · Copenhagen</span>
-            <span data-lang="da" class="inline-lang">Kort vises her · København</span>
-          </p>
-        </div>
-      </div>
+    </div>
+    <div>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2248.4!2d12.5041!3d55.7012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x465253640b1aa0e5%3A0x7d3e2df61aded01e!2sKrishna%20Movement%20%2F%20Iskcon!5e0!3m2!1sen!2sdk!4v1"
+        width="100%" height="340"
+        style="border:0;border-radius:4px;box-shadow:0 8px 30px rgba(26,16,8,.1)"
+        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center">
+        <span class="t-en">28 min by public transport · 9 min by car from city centre</span>
+        <span class="t-da">28 min med offentlig transport · 9 min med bil fra centrum</span>
+      </p>
     </div>
   </div>
 </section>
 
-<!-- Donate -->
-<section class="donate" id="donate">
-  <div class="container">
-    <div class="donate-grid">
-      <div>
-        <p class="section-eyebrow">Seva</p>
-        <h2 class="section-title">
-          <span data-lang="en" class="inline-lang active">Support the <em>Temple</em></span>
-          <span data-lang="da" class="inline-lang">Støt <em>Templet</em></span>
-        </h2>
-        <p class="section-body">
-          <span data-lang="en" class="inline-lang active">Every offering, however small, goes directly toward the Lord's service. Seva means devotional service — your contribution keeps the temple running, the deities dressed and fed, and the community programmes alive.</span>
-          <span data-lang="da" class="inline-lang">Hvert tilbud, uanset hvor lille, går direkte til Herrens tjeneste. Seva betyder hengiven tjeneste — dit bidrag holder templet kørende, guderne klædt og mættet, og samfundsprogrammerne i live.</span>
-        </p>
-        <ul class="seva-list">
-          <li>
-            <span class="seva-name">Annadan Seva</span>
-            <span class="seva-amount">
-              <span data-lang="en" class="inline-lang active">Food offering</span>
-              <span data-lang="da" class="inline-lang">Madoffer</span>
-            </span>
-          </li>
-          <li>
-            <span class="seva-name">Pushpa Seva</span>
-            <span class="seva-amount">
-              <span data-lang="en" class="inline-lang active">Flower offering</span>
-              <span data-lang="da" class="inline-lang">Blomsteroffer</span>
-            </span>
-          </li>
-          <li>
-            <span class="seva-name">Nitya Seva</span>
-            <span class="seva-amount">
-              <span data-lang="en" class="inline-lang active">Daily maintenance</span>
-              <span data-lang="da" class="inline-lang">Daglig vedligeholdelse</span>
-            </span>
-          </li>
-          <li>
-            <span class="seva-name">Ratha-Yatra Seva</span>
-            <span class="seva-amount">
-              <span data-lang="en" class="inline-lang active">Festival support</span>
-              <span data-lang="da" class="inline-lang">Festivalstøtte</span>
-            </span>
-          </li>
-        </ul>
-      </div>
-      <div class="donate-box">
-        <h3>
-          <span data-lang="en" class="inline-lang active">Offer Your Seva</span>
-          <span data-lang="da" class="inline-lang">Giv Din Seva</span>
-        </h3>
-        <p>
-          <span data-lang="en" class="inline-lang active">Your donation supports the temple's daily services, festivals, and free prasadam distribution to all visitors. All contributions are gratefully received with Hare Krishna.</span>
-          <span data-lang="da" class="inline-lang">Din donation støtter tempelets daglige tjenester, festivaler og gratis prasadam-uddeling til alle besøgende. Alle bidrag modtages taknemmeligeligt med Hare Krishna.</span>
-        </p>
-        <div class="donate-methods">
-          <a href="#" class="donate-method">
-            <span class="method-icon">💳</span>
-            <div>
-              <div class="method-label">
-                <span data-lang="en" class="inline-lang active">Card / Online transfer</span>
-                <span data-lang="da" class="inline-lang">Kort / Online overførsel</span>
-              </div>
-              <div class="method-desc">
-                <span data-lang="en" class="inline-lang active">Coming soon</span>
-                <span data-lang="da" class="inline-lang">Kommer snart</span>
-              </div>
-            </div>
-          </a>
-          <a href="#" class="donate-method">
-            <span class="method-icon">🏦</span>
-            <div>
-              <div class="method-label">
-                <span data-lang="en" class="inline-lang active">Bank transfer</span>
-                <span data-lang="da" class="inline-lang">Bankoverførsel</span>
-              </div>
-              <div class="method-desc">
-                <span data-lang="en" class="inline-lang active">Details on request</span>
-                <span data-lang="da" class="inline-lang">Detaljer på forespørgsel</span>
-              </div>
-            </div>
-          </a>
-          <a href="#" class="donate-method">
-            <span class="method-icon">📱</span>
-            <div>
-              <div class="method-label">MobilePay</div>
-              <div class="method-desc">
-                <span data-lang="en" class="inline-lang active">Coming soon</span>
-                <span data-lang="da" class="inline-lang">Kommer snart</span>
-              </div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
+<!-- ══ FOOTER ══ -->
 <footer>
   <div class="footer-logo">Jagannath Danmark</div>
   <div class="footer-mantra">Hare Krishna Hare Krishna · Krishna Krishna Hare Hare · Hare Rama Hare Rama · Rama Rama Hare Hare</div>
   <div class="footer-links">
-    <a href="#about">
-      <span data-lang="en" class="inline-lang active">About</span>
-      <span data-lang="da" class="inline-lang">Om os</span>
-    </a>
-    <a href="#events">
-      <span data-lang="en" class="inline-lang active">Events</span>
-      <span data-lang="da" class="inline-lang">Begivenheder</span>
-    </a>
-    <a href="#ratha">Ratha-Yatra</a>
-    <a href="#visit">
-      <span data-lang="en" class="inline-lang active">Visit</span>
-      <span data-lang="da" class="inline-lang">Besøg</span>
-    </a>
-    <a href="#donate">Seva</a>
+    <a href="about.html"><span class="t-en">About</span><span class="t-da">Om os</span></a>
+    <a href="schedule.html"><span class="t-en">Schedule</span><span class="t-da">Program</span></a>
+    <a href="events.html"><span class="t-en">Events</span><span class="t-da">Begivenheder</span></a>
+    <a href="gallery.html"><span class="t-en">Gallery</span><span class="t-da">Galleri</span></a>
+    <a href="visit.html"><span class="t-en">Visit</span><span class="t-da">Besøg</span></a>
+    <a href="donate.html">Seva</a>
     <a href="https://harekrishna.dk" target="_blank">Hare Krishna DK</a>
+  </div>
+  <div class="footer-addr">
+    Skjulhøj Allé 44 · 2720 København ·
+    <a href="tel:+4548286446" style="color:inherit">48 28 64 46</a> ·
+    <a href="mailto:iskcon.denmark@pamho.net" style="color:inherit">iskcon.denmark@pamho.net</a>
   </div>
   <div class="footer-copy">© 2026 Jagannath Danmark · jagannath.dk · All glories to Srila Prabhupada</div>
 </footer>
 
-<script>
-  let currentLang = 'en';
+<!-- WhatsApp FAB -->
+<a href="https://wa.me/4548286446" class="whatsapp-fab" target="_blank" aria-label="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
 
-  function setLang(lang) {
-    currentLang = lang;
-
-    // Toggle lang-btn active states
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.textContent.toLowerCase().includes(lang === 'da' ? 'dansk' : 'english'));
-    });
-
-    // Toggle block-level [data-lang] elements
-    document.querySelectorAll('[data-lang]').forEach(el => {
-      el.classList.toggle('active', el.dataset.lang === lang);
-    });
-
-    // Toggle inline [data-lang] spans
-    document.querySelectorAll('.inline-lang').forEach(el => {
-      el.classList.toggle('active', el.dataset.lang === lang);
-    });
-
-    // Update nav links text
-    document.querySelectorAll('nav a[data-' + lang + ']').forEach(el => {
-      if (el.dataset[lang]) el.textContent = el.dataset[lang];
-    });
-
-    document.documentElement.lang = lang;
-  }
-
-  // Init with English
-  setLang('en');
-</script>
-
+<script src="shared.js"></script>
 </body>
 </html>
