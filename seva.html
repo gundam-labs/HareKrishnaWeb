@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Seva Signup — Jagannath Danmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.seva-hero { background:var(--night); padding:3.5rem 2rem 3rem; text-align:center; position:relative; overflow:hidden; }
+.seva-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 100%,rgba(200,145,26,.1) 0%,transparent 65%); }
+.seva-hero h1 { font-family:var(--font-d); font-size:clamp(2.2rem,5vw,3.8rem); font-weight:600; color:white; position:relative; }
+.seva-hero h1 em { color:var(--gold); font-style:italic; }
+.seva-hero p { font-family:var(--font-d); font-style:italic; color:rgba(255,255,255,.4); font-size:1.05rem; margin-top:.5rem; position:relative; }
+
+.seva-form-wrap { max-width:720px; margin:0 auto; padding:3.5rem 2rem 5rem; }
+
+.form-card { background:white; border-radius:10px; border:1px solid var(--border); padding:2rem; margin-bottom:1.5rem; }
+.form-card h3 { font-family:var(--font-d); font-size:1.3rem; font-weight:600; color:var(--night); margin-bottom:1.25rem; padding-bottom:.75rem; border-bottom:1px solid var(--border); }
+
+.field { margin-bottom:1.25rem; }
+.field label { display:block; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); font-weight:500; margin-bottom:.4rem; }
+.field input, .field select, .field textarea {
+  width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px;
+  font-family:var(--font-b); font-size:15px; color:var(--text); background:var(--cream);
+  transition:border-color .2s; outline:none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--gold); background:white; }
+.field textarea { resize:vertical; min-height:80px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+.seva-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.75rem; margin-bottom:.5rem; }
+.seva-option { position:relative; }
+.seva-option input[type=checkbox] { position:absolute; opacity:0; width:0; height:0; }
+.seva-option label {
+  display:flex; flex-direction:column; padding:1rem; border-radius:8px;
+  border:1px solid var(--border); cursor:pointer; transition:all .2s;
+  background:var(--cream);
+}
+.seva-option label:hover { border-color:var(--gold); background:var(--gold-light); }
+.seva-option input:checked + label { border-color:var(--saffron); background:var(--saffron-light); }
+.seva-icon { font-size:1.5rem; margin-bottom:.5rem; }
+.seva-name { font-family:var(--font-d); font-size:.95rem; font-weight:600; color:var(--night); }
+.seva-time { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+.submit-btn {
+  width:100%; padding:15px; background:var(--saffron); color:white; border:none;
+  border-radius:6px; font-family:var(--font-b); font-size:15px; font-weight:500;
+  cursor:pointer; letter-spacing:.04em; transition:background .2s;
+}
+.submit-btn:hover { background:#c5520a; }
+.submit-btn:disabled { background:var(--text-muted); cursor:not-allowed; }
+
+.success-msg { display:none; text-align:center; padding:3rem 2rem; }
+.success-msg .om { font-size:3rem; margin-bottom:1rem; }
+.success-msg h2 { font-family:var(--font-d); font-size:2rem; color:var(--night); margin-bottom:.5rem; }
+.success-msg p { color:var(--text-mid); font-size:15px; }
+
+.msg { padding:12px 16px; border-radius:6px; font-size:14px; margin-bottom:1rem; display:none; }
+.msg.error { background:#fee; border:1px solid #fcc; color:#c00; }
+.msg.info { background:var(--gold-light); border:1px solid var(--border); color:var(--night); }
+
+@media(max-width:600px){ .field-row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="lang-bar"><button class="lang-btn" onclick="setLang('da')">Dansk</button><button class="lang-btn active" onclick="setLang('en')">English</button></div>
+<nav>
+  <a class="nav-logo" href="index.html">Jagannath<span> Danmark</span></a>
+  <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+  <ul class="nav-links" id="nav-menu">
+    <li><a href="about.html"><span class="t-en">About</span><span class="t-da">Om os</span></a></li>
+    <li><a href="schedule.html"><span class="t-en">Schedule</span><span class="t-da">Program</span></a></li>
+    <li><a href="events.html"><span class="t-en">Events</span><span class="t-da">Begivenheder</span></a></li>
+    <li><a href="gallery.html"><span class="t-en">Gallery</span><span class="t-da">Galleri</span></a></li>
+    <li><a href="visit.html"><span class="t-en">Visit</span><span class="t-da">Besøg</span></a></li>
+    <li><a href="donate.html" class="nav-donate"><span class="t-en">Donate Seva</span><span class="t-da">Donér Seva</span></a></li>
+  </ul>
+</nav>
+
+<div class="seva-hero">
+  <div class="breadcrumb"><a href="index.html">Home</a> / Seva</div>
+  <h1><span class="t-en">Sign Up for <em>Seva</em></span><span class="t-da">Tilmeld dig <em>Seva</em></span></h1>
+  <p><span class="t-en">Offer your devotional service to Lord Jagannath</span><span class="t-da">Tilbyd din hengivne tjeneste til Herre Jagannath</span></p>
+</div>
+
+<div class="seva-form-wrap">
+  <div id="form-area">
+    <div class="msg" id="err-msg"></div>
+
+    <div class="form-card">
+      <h3><span class="t-en">Your details</span><span class="t-da">Dine oplysninger</span></h3>
+      <div class="field-row">
+        <div class="field">
+          <label><span class="t-en">Full name</span><span class="t-da">Fulde navn</span></label>
+          <input type="text" id="f-name" placeholder="Hare Krishna das" required>
+        </div>
+        <div class="field">
+          <label><span class="t-en">Phone / WhatsApp</span><span class="t-da">Telefon / WhatsApp</span></label>
+          <input type="tel" id="f-phone" placeholder="+45 00 00 00 00">
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="f-email" placeholder="name@example.com">
+      </div>
+      <div class="field">
+        <label><span class="t-en">Experience level</span><span class="t-da">Erfaringsniveau</span></label>
+        <select id="f-exp">
+          <option value=""><span class="t-en">Select...</span></option>
+          <option value="new"><span class="t-en">New devotee — first time seva</span></option>
+          <option value="some">Some experience</option>
+          <option value="regular">Regular devotee</option>
+          <option value="trained">Trained / experienced pujari</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3><span class="t-en">Choose your seva</span><span class="t-da">Vælg din seva</span></h3>
+      <div class="seva-grid">
+        <div class="seva-option"><input type="checkbox" id="s1" value="Mangala Aarti"><label for="s1"><span class="seva-icon">🕯️</span><span class="seva-name">Mangala Aarti</span><span class="seva-time">4:30 AM daily</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s2" value="Deity Dressing"><label for="s2"><span class="seva-icon">🌸</span><span class="seva-name">Deity Dressing</span><span class="seva-time">Morning</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s3" value="Flower Arrangement"><label for="s3"><span class="seva-icon">💐</span><span class="seva-name">Flower Arrangement</span><span class="seva-time">Morning</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s4" value="Altar Cleaning"><label for="s4"><span class="seva-icon">✨</span><span class="seva-name">Altar Cleaning</span><span class="seva-time">Morning</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s5" value="Cooking Prasadam"><label for="s5"><span class="seva-icon">🍲</span><span class="seva-name">Cooking Prasadam</span><span class="seva-time">Late morning</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s6" value="Sunday Feast Cooking"><label for="s6"><span class="seva-icon">🥘</span><span class="seva-name">Sunday Feast Cooking</span><span class="seva-time">Sundays 12:00</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s7" value="Greeting Devotees"><label for="s7"><span class="seva-icon">🙏</span><span class="seva-name">Greeting Devotees</span><span class="seva-time">Evenings</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s8" value="Kirtan"><label for="s8"><span class="seva-icon">🥁</span><span class="seva-name">Kirtan</span><span class="seva-time">Various</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s9" value="Ratha-Yatra Preparation"><label for="s9"><span class="seva-icon">🏛️</span><span class="seva-name">Ratha-Yatra Prep</span><span class="seva-time">Annual festival</span></label></div>
+        <div class="seva-option"><input type="checkbox" id="s10" value="General Assistance"><label for="s10"><span class="seva-icon">🤝</span><span class="seva-name">General Assistance</span><span class="seva-time">As needed</span></label></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3><span class="t-en">Preferred dates</span><span class="t-da">Foretrukne datoer</span></h3>
+      <div class="field-row">
+        <div class="field">
+          <label><span class="t-en">Start date</span><span class="t-da">Startdato</span></label>
+          <input type="date" id="f-date-start">
+        </div>
+        <div class="field">
+          <label><span class="t-en">Available days</span><span class="t-da">Tilgængelige dage</span></label>
+          <select id="f-days">
+            <option value="Any day">Any day</option>
+            <option value="Weekdays only">Weekdays only</option>
+            <option value="Weekends only">Weekends only</option>
+            <option value="Sundays only">Sundays only</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="t-en">Notes or questions</span><span class="t-da">Noter eller spørgsmål</span></label>
+        <textarea id="f-notes" placeholder="Any dietary restrictions for cooking seva, special requests, or questions for the temple coordinator..."></textarea>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitSeva()" id="submit-btn">
+      🙏 <span class="t-en">Submit Seva Request</span><span class="t-da">Send Seva-anmodning</span>
+    </button>
+  </div>
+
+  <div class="success-msg" id="success-area">
+    <div class="om">🪬</div>
+    <h2><span class="t-en">Hare Krishna!</span><span class="t-da">Hare Krishna!</span></h2>
+    <p id="success-text"></p>
+    <p style="margin-top:1rem;font-size:13px;color:var(--text-muted)">
+      <span class="t-en">The temple coordinator will contact you to confirm your seva slot.</span>
+      <span class="t-da">Tempelkoordinatoren vil kontakte dig for at bekræfte din seva-plads.</span>
+    </p>
+    <a href="index.html" class="btn-primary" style="display:inline-block;margin-top:2rem">
+      <span class="t-en">Return home</span><span class="t-da">Tilbage til forsiden</span>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Jagannath Danmark</div>
+  <div class="footer-mantra">Hare Krishna Hare Krishna · Krishna Krishna Hare Hare · Hare Rama Hare Rama · Rama Rama Hare Hare</div>
+  <div class="footer-copy">© 2026 Jagannath Danmark · jagannath.dk</div>
+</footer>
+<a href="https://wa.me/4548286446" class="whatsapp-fab" target="_blank" aria-label="WhatsApp"><svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+<script src="shared.js"></script>
+<script>
+const STORAGE_KEY = 'seva-signups';
+
+async function submitSeva() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const exp = document.getElementById('f-exp').value;
+  const dateStart = document.getElementById('f-date-start').value;
+  const days = document.getElementById('f-days').value;
+  const notes = document.getElementById('f-notes').value.trim();
+  const sevas = Array.from(document.querySelectorAll('.seva-option input:checked')).map(i => i.value);
+
+  const err = document.getElementById('err-msg');
+  err.style.display = 'none';
+
+  if (!name) { showErr('Please enter your name.'); return; }
+  if (sevas.length === 0) { showErr('Please select at least one seva.'); return; }
+  if (!phone && !email) { showErr('Please enter a phone number or email so we can contact you.'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  const signup = {
+    id: Date.now().toString(),
+    name, phone, email, exp, sevas, dateStart, days, notes,
+    status: 'pending',
+    submittedAt: new Date().toISOString()
+  };
+
+  try {
+    const existing = await window.storage.get(STORAGE_KEY).then(r => r ? JSON.parse(r.value) : []).catch(() => []);
+    existing.push(signup);
+    await window.storage.set(STORAGE_KEY, JSON.stringify(existing), true);
+
+    document.getElementById('form-area').style.display = 'none';
+    const s = document.getElementById('success-area');
+    s.style.display = 'block';
+    document.getElementById('success-text').textContent =
+      `Thank you, ${name}! Your seva request for "${sevas.join(', ')}" has been received.`;
+  } catch(e) {
+    showErr('Something went wrong. Please try again or call 48 28 64 46.');
+    btn.disabled = false;
+    btn.innerHTML = '🙏 Submit Seva Request';
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.className = 'msg error';
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+</script>
+</body>
+</html>
