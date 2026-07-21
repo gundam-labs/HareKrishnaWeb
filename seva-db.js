@@ -1,16 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-//  JAGANNATH.DK — seva-db.js
-//  All storage + SMS goes through Cloudflare Worker.
-//  NO secrets in this file — safe to be public on GitHub.
-//
-//  After deploying your Cloudflare Worker, set:
-//    WORKER_URL    = your worker URL
-//    WORKER_SECRET = the secret you chose
+//  JAGANNATH.DK — seva-db.js  (Step 1: JSONBin direct)
+//  SMS via Cloudflare Worker — added in Step 2
 // ═══════════════════════════════════════════════════════════════
 
-const WORKER = {
-  URL:    'https://jagannath-sms.YOUR-SUBDOMAIN.workers.dev',  // ← update this
-  SECRET: 'JagannathSeva2026!'                                 // ← update this
+const JSONBIN = {
+  BIN_ID:  '6a5f454cf5f4af5e29abc230',
+  API_KEY: '$2a$10$zNYsukts2VZ1jQDVoRzvXOv/v.pCyLaNrLg7OKncO.WL56iYn.WNa',
+  URL:     'https://api.jsonbin.io/v3/b'
 };
 
 const EMAILJS_CONFIG = {
@@ -29,60 +25,45 @@ const TEMPLE = {
   ADMIN_URL: 'https://jagannath.dk/admin-seva.html',
 };
 
-// ═══════════════════════════════════════
-//  WORKER CALLS
-// ═══════════════════════════════════════
-async function workerCall(payload) {
-  const resp = await fetch(WORKER.URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ ...payload, secret: WORKER.SECRET })
-  });
-  if (!resp.ok) throw new Error(`Worker error: ${resp.status}`);
-  return resp.json();
-}
-
+// ── Database ──
 async function dbRead() {
-  const data = await workerCall({ action: 'db_read' });
-  if (!data.success) throw new Error(data.error || 'DB read failed');
-  return data.signups;
+  const r = await fetch(`${JSONBIN.URL}/${JSONBIN.BIN_ID}/latest`, {
+    headers: { 'X-Master-Key': JSONBIN.API_KEY }
+  });
+  if (!r.ok) throw new Error('DB read failed: ' + r.status);
+  const d = await r.json();
+  return d.record?.signups || [];
 }
 
 async function dbWrite(signups) {
-  const data = await workerCall({ action: 'db_write', signups });
-  if (!data.success) throw new Error(data.error || 'DB write failed');
-  return data;
+  const r = await fetch(`${JSONBIN.URL}/${JSONBIN.BIN_ID}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN.API_KEY
+    },
+    body: JSON.stringify({ signups })
+  });
+  if (!r.ok) throw new Error('DB write failed: ' + r.status);
+  return r.json();
 }
 
-async function sendSMS(to, message) {
-  if (WORKER.URL.includes('YOUR-SUBDOMAIN')) {
-    console.log('⚠️ Worker not configured — SMS skipped');
-    return;
-  }
-  try {
-    const data = await workerCall({ action: 'sms', to, message });
-    if (data.success) console.log('✅ SMS sent:', data.sid);
-    else console.warn('⚠️ SMS failed:', data.error);
-  } catch (err) {
-    console.warn('⚠️ SMS error (non-fatal):', err.message);
-  }
-}
-
-// ═══════════════════════════════════════
-//  EMAIL (EmailJS)
-// ═══════════════════════════════════════
+// ── Email ──
 async function sendEmail(templateId, params) {
   try {
     await emailjs.send(EMAILJS_CONFIG.SERVICE_ID, templateId, params);
     console.log('✅ Email sent:', templateId);
-  } catch (err) {
-    console.warn('⚠️ Email failed (non-fatal):', err);
+  } catch(e) {
+    console.warn('⚠️ Email failed:', e);
   }
 }
 
-// ═══════════════════════════════════════
-//  MAIN SUBMIT (called from seva.html)
-// ═══════════════════════════════════════
+// ── SMS (Step 2 — Cloudflare Worker, skip for now) ──
+async function sendSMS(to, message) {
+  console.log('ℹ️ SMS not yet configured — Step 2');
+}
+
+// ── Main submit ──
 async function submitSeva() {
   const name      = document.getElementById('f-name').value.trim();
   const initiated = document.getElementById('f-initiated').value.trim();
@@ -98,10 +79,9 @@ async function submitSeva() {
 
   hideErr();
 
-  // Validate
   if (!name)         { showErr('Please enter your full name.'); return; }
   if (!email)        { showErr('Please enter your email address.'); return; }
-  if (!phone)        { showErr('Please enter your phone number for SMS reminders.'); return; }
+  if (!phone)        { showErr('Please enter your phone number.'); return; }
   if (!sevas.length) { showErr('Please select at least one seva type.'); return; }
   if (!date)         { showErr('Please select a seva date.'); return; }
 
@@ -114,7 +94,7 @@ async function submitSeva() {
   });
 
   const signup = {
-    id:          Date.now().toString(),
+    id: Date.now().toString(),
     name, initiated, phone, email, exp, sevas,
     date, days, notes,
     status:      'pending',
@@ -122,11 +102,11 @@ async function submitSeva() {
   };
 
   try {
-    // 1. Save to database via Worker → JSONBin
+    // 1. Save to JSONBin
     const existing = await dbRead();
     existing.push(signup);
     await dbWrite(existing);
-    console.log('✅ Signup saved to database');
+    console.log('✅ Saved to database');
 
     // 2. Confirmation email to devotee
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_CONFIRM, {
@@ -145,22 +125,22 @@ async function submitSeva() {
       reply_to:       EMAILJS_CONFIG.ADMIN_EMAIL,
     });
 
-    // 3. Admin notification email
+    // 3. Admin notification
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_ADMIN, {
-      to_email:       EMAILJS_CONFIG.ADMIN_EMAIL,
-      name:           TEMPLE.NAME,
-      email:          EMAILJS_CONFIG.ADMIN_EMAIL,
-      devotee_name:   displayName,
-      devotee_email:  email,
-      devotee_phone:  phone,
-      seva_list:      sevaList,
-      seva_date:      dateFormatted,
-      experience:     exp,
-      notes:          notes || 'None',
-      admin_url:      TEMPLE.ADMIN_URL,
+      to_email:      EMAILJS_CONFIG.ADMIN_EMAIL,
+      name:          TEMPLE.NAME,
+      email:         EMAILJS_CONFIG.ADMIN_EMAIL,
+      devotee_name:  displayName,
+      devotee_email: email,
+      devotee_phone: phone,
+      seva_list:     sevaList,
+      seva_date:     dateFormatted,
+      experience:    exp,
+      notes:         notes || 'None',
+      admin_url:     TEMPLE.ADMIN_URL,
     });
 
-    // 4. Reminder emails — sent now with date labels embedded
+    // 4. Reminder emails
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_REMINDER, {
       to_name:        displayName,
       to_email:       email,
@@ -168,7 +148,7 @@ async function submitSeva() {
       email:          email,
       seva_list:      sevaList,
       seva_date:      dateFormatted,
-      reminder_label: `Day before reminder — ${dateFormatted}`,
+      reminder_label: `Day before — ${dateFormatted}`,
       temple_phone:   TEMPLE.PHONE,
       temple_address: TEMPLE.ADDRESS,
     });
@@ -185,86 +165,59 @@ async function submitSeva() {
       temple_address: TEMPLE.ADDRESS,
     });
 
-    // 5. SMS via Worker → Twilio (non-fatal if Twilio not set up yet)
-    const firstName = name.split(' ')[0];
-    await sendSMS(phone,
-      `Hare Krishna ${firstName}! 🙏 Your seva "${sevaList}" on ${dateFormatted} is confirmed at Jagannath Temple, Skjulhøj Allé 44. Questions? Call ${TEMPLE.PHONE}. Jai Jagannath!`
-    );
-
     showSuccess(displayName, sevaList, dateFormatted, email, phone);
 
-  } catch (err) {
+  } catch(err) {
     console.error('Submit error:', err);
     showErr(`Something went wrong: ${err.message}. Please call ${TEMPLE.PHONE} or try again.`);
     setLoading(false);
   }
 }
 
-// ═══════════════════════════════════════
-//  ADMIN FUNCTIONS (used by admin-seva.html)
-// ═══════════════════════════════════════
-async function adminLoadData() {
-  return await dbRead();
+// ── Admin functions ──
+async function adminLoadData()               { return await dbRead(); }
+async function adminUpdateStatus(s, id, st)  {
+  const u = s.map(x => x.id===id ? {...x, status:st} : x);
+  await dbWrite(u); return u;
+}
+async function adminDelete(s, id) {
+  const u = s.filter(x => x.id!==id);
+  await dbWrite(u); return u;
 }
 
-async function adminUpdateStatus(signups, id, status) {
-  const updated = signups.map(s => s.id === id ? { ...s, status } : s);
-  await dbWrite(updated);
-  return updated;
-}
-
-async function adminDelete(signups, id) {
-  const updated = signups.filter(s => s.id !== id);
-  await dbWrite(updated);
-  return updated;
-}
-
-// ═══════════════════════════════════════
-//  UI HELPERS
-// ═══════════════════════════════════════
+// ── UI helpers ──
 function setLoading(on) {
   const btn = document.getElementById('submit-btn');
   if (!btn) return;
   btn.disabled = on;
   btn.classList.toggle('loading', on);
 }
-
 function showErr(msg) {
   const el = document.getElementById('err-msg');
   if (!el) return;
   el.textContent = msg;
   el.classList.remove('hidden');
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.scrollIntoView({behavior:'smooth', block:'center'});
 }
-
 function hideErr() {
   const el = document.getElementById('err-msg');
   if (el) el.classList.add('hidden');
 }
-
 function showSuccess(name, sevaList, dateFormatted, email, phone) {
-  const formArea    = document.getElementById('form-area');
-  const successArea = document.getElementById('success-area');
-  if (formArea)    formArea.style.display = 'none';
-  if (successArea) successArea.style.display = 'block';
-
-  const successText = document.getElementById('success-text');
-  if (successText) {
-    successText.textContent =
-      `Thank you, ${name}! Your seva request for "${sevaList}" on ${dateFormatted} has been received.`;
-  }
-
-  const notifConfirm = document.getElementById('notif-confirm');
-  if (notifConfirm) {
-    notifConfirm.innerHTML = `
-      <strong>🔔 Notifications sent to:</strong><br>
-      📧 ${email}<br>
-      📱 ${phone}<br><br>
-      ✓ Confirmation email sent<br>
-      ✓ Reminder emails sent (day before &amp; morning of)<br>
-      ✓ SMS confirmation sent<br>
-      ✓ Temple coordinator notified
-    `;
-  }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const fa = document.getElementById('form-area');
+  const sa = document.getElementById('success-area');
+  if (fa) fa.style.display = 'none';
+  if (sa) sa.style.display = 'block';
+  const st = document.getElementById('success-text');
+  if (st) st.textContent =
+    `Thank you, ${name}! Your seva "${sevaList}" on ${dateFormatted} has been received.`;
+  const nc = document.getElementById('notif-confirm');
+  if (nc) nc.innerHTML = `
+    <strong>🔔 Notifications sent to:</strong><br>
+    📧 ${email}<br>📱 ${phone}<br><br>
+    ✓ Confirmation email sent<br>
+    ✓ Reminder emails sent<br>
+    ✓ Temple coordinator notified
+  `;
+  window.scrollTo({top:0, behavior:'smooth'});
 }
