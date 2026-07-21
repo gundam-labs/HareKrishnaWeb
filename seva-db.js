@@ -1,16 +1,18 @@
+// ═══════════════════════════════════════════════════════════════
+//  JAGANNATH.DK — seva-db.js
+//  All storage + SMS goes through Cloudflare Worker.
+//  NO secrets in this file — safe to be public on GitHub.
+//
+//  After deploying your Cloudflare Worker, set:
+//    WORKER_URL    = your worker URL
+//    WORKER_SECRET = the secret you chose
+// ═══════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════
-//  JAGANNATH.DK — Seva Storage via JSONBin.io
-//  Free database — works on any website
-// ═══════════════════════════════════════════════════
-
-const JSONBIN_CONFIG = {
-  BIN_ID:    '6a5f454cf5f4af5e29abc230',       // from jsonbin.io after creating bin
-  API_KEY:   '$2a$10$kGfwryHQOC7AsB6SIn68n.tuS4d8mBqnSpKUAkmzF7xCK/hnKXW2e',      // X-Master-Key from jsonbin.io
-  BASE_URL:  'https://api.jsonbin.io/v3/b'
+const WORKER = {
+  URL:    'https://jagannath-sms.YOUR-SUBDOMAIN.workers.dev',  // ← update this
+  SECRET: 'JagannathSeva2026!'                                 // ← update this
 };
 
-// EmailJS config
 const EMAILJS_CONFIG = {
   PUBLIC_KEY:        'T6Of-E2sdOYjkN0Mh',
   SERVICE_ID:        'service_6cdu6dg',
@@ -21,46 +23,66 @@ const EMAILJS_CONFIG = {
 };
 
 const TEMPLE = {
-  NAME:    'Jagannath Danmark',
-  PHONE:   '+45 48 28 64 46',
-  ADDRESS: 'Skjulhøj Allé 44, 2720 Vanløse, København',
+  NAME:      'Jagannath Danmark',
+  PHONE:     '+45 48 28 64 46',
+  ADDRESS:   'Skjulhøj Allé 44, 2720 Vanløse, København',
   ADMIN_URL: 'https://jagannath.dk/admin-seva.html',
 };
 
-// ── JSONBin helpers ──
-async function dbRead() {
-  const r = await fetch(`${JSONBIN_CONFIG.BASE_URL}/${JSONBIN_CONFIG.BIN_ID}/latest`, {
-    headers: { 'X-Master-Key': JSONBIN_CONFIG.API_KEY }
+// ═══════════════════════════════════════
+//  WORKER CALLS
+// ═══════════════════════════════════════
+async function workerCall(payload) {
+  const resp = await fetch(WORKER.URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ ...payload, secret: WORKER.SECRET })
   });
-  if (!r.ok) throw new Error('DB read failed: ' + r.status);
-  const d = await r.json();
-  return d.record?.signups || [];
+  if (!resp.ok) throw new Error(`Worker error: ${resp.status}`);
+  return resp.json();
+}
+
+async function dbRead() {
+  const data = await workerCall({ action: 'db_read' });
+  if (!data.success) throw new Error(data.error || 'DB read failed');
+  return data.signups;
 }
 
 async function dbWrite(signups) {
-  const r = await fetch(`${JSONBIN_CONFIG.BASE_URL}/${JSONBIN_CONFIG.BIN_ID}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Master-Key': JSONBIN_CONFIG.API_KEY
-    },
-    body: JSON.stringify({ signups })
-  });
-  if (!r.ok) throw new Error('DB write failed: ' + r.status);
-  return r.json();
+  const data = await workerCall({ action: 'db_write', signups });
+  if (!data.success) throw new Error(data.error || 'DB write failed');
+  return data;
 }
 
-// ── EmailJS helpers ──
+async function sendSMS(to, message) {
+  if (WORKER.URL.includes('YOUR-SUBDOMAIN')) {
+    console.log('⚠️ Worker not configured — SMS skipped');
+    return;
+  }
+  try {
+    const data = await workerCall({ action: 'sms', to, message });
+    if (data.success) console.log('✅ SMS sent:', data.sid);
+    else console.warn('⚠️ SMS failed:', data.error);
+  } catch (err) {
+    console.warn('⚠️ SMS error (non-fatal):', err.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  EMAIL (EmailJS)
+// ═══════════════════════════════════════
 async function sendEmail(templateId, params) {
   try {
     await emailjs.send(EMAILJS_CONFIG.SERVICE_ID, templateId, params);
     console.log('✅ Email sent:', templateId);
-  } catch(e) {
-    console.warn('⚠️ Email failed (non-fatal):', e);
+  } catch (err) {
+    console.warn('⚠️ Email failed (non-fatal):', err);
   }
 }
 
-// ── Main submit ──
+// ═══════════════════════════════════════
+//  MAIN SUBMIT (called from seva.html)
+// ═══════════════════════════════════════
 async function submitSeva() {
   const name      = document.getElementById('f-name').value.trim();
   const initiated = document.getElementById('f-initiated').value.trim();
@@ -70,36 +92,41 @@ async function submitSeva() {
   const date      = document.getElementById('f-date').value;
   const days      = document.getElementById('f-days').value;
   const notes     = document.getElementById('f-notes').value.trim();
-  const sevas     = Array.from(document.querySelectorAll('.seva-option input:checked')).map(i => i.value);
+  const sevas     = Array.from(
+    document.querySelectorAll('.seva-option input:checked')
+  ).map(i => i.value);
 
   hideErr();
-  if (!name)           { showErr('Please enter your full name.'); return; }
-  if (!email)          { showErr('Please enter your email address.'); return; }
-  if (!phone)          { showErr('Please enter your phone number for SMS reminders.'); return; }
-  if (!sevas.length)   { showErr('Please select at least one seva type.'); return; }
-  if (!date)           { showErr('Please select a seva date.'); return; }
+
+  // Validate
+  if (!name)         { showErr('Please enter your full name.'); return; }
+  if (!email)        { showErr('Please enter your email address.'); return; }
+  if (!phone)        { showErr('Please enter your phone number for SMS reminders.'); return; }
+  if (!sevas.length) { showErr('Please select at least one seva type.'); return; }
+  if (!date)         { showErr('Please select a seva date.'); return; }
 
   setLoading(true);
 
   const displayName   = initiated ? `${name} (${initiated})` : name;
   const sevaList      = sevas.join(', ');
   const dateFormatted = new Date(date + 'T12:00:00').toLocaleDateString('en-GB', {
-    weekday:'long', day:'numeric', month:'long', year:'numeric'
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
 
   const signup = {
-    id: Date.now().toString(),
-    name, initiated, phone, email, exp, sevas, date, days, notes,
-    status: 'pending',
+    id:          Date.now().toString(),
+    name, initiated, phone, email, exp, sevas,
+    date, days, notes,
+    status:      'pending',
     submittedAt: new Date().toISOString()
   };
 
   try {
-    // 1. Save to JSONBin
+    // 1. Save to database via Worker → JSONBin
     const existing = await dbRead();
     existing.push(signup);
     await dbWrite(existing);
-    console.log('✅ Saved to database');
+    console.log('✅ Signup saved to database');
 
     // 2. Confirmation email to devotee
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_CONFIRM, {
@@ -118,7 +145,7 @@ async function submitSeva() {
       reply_to:       EMAILJS_CONFIG.ADMIN_EMAIL,
     });
 
-    // 3. Admin notification
+    // 3. Admin notification email
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_ADMIN, {
       to_email:       EMAILJS_CONFIG.ADMIN_EMAIL,
       name:           TEMPLE.NAME,
@@ -133,7 +160,7 @@ async function submitSeva() {
       admin_url:      TEMPLE.ADMIN_URL,
     });
 
-    // 4. Reminder emails (sent now with date labels)
+    // 4. Reminder emails — sent now with date labels embedded
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_REMINDER, {
       to_name:        displayName,
       to_email:       email,
@@ -141,7 +168,7 @@ async function submitSeva() {
       email:          email,
       seva_list:      sevaList,
       seva_date:      dateFormatted,
-      reminder_label: `Tomorrow — ${dateFormatted}`,
+      reminder_label: `Day before reminder — ${dateFormatted}`,
       temple_phone:   TEMPLE.PHONE,
       temple_address: TEMPLE.ADDRESS,
     });
@@ -153,64 +180,35 @@ async function submitSeva() {
       email:          email,
       seva_list:      sevaList,
       seva_date:      dateFormatted,
-      reminder_label: `Today — ${dateFormatted}`,
+      reminder_label: `Morning of seva — ${dateFormatted}`,
       temple_phone:   TEMPLE.PHONE,
       temple_address: TEMPLE.ADDRESS,
     });
+
+    // 5. SMS via Worker → Twilio (non-fatal if Twilio not set up yet)
+    const firstName = name.split(' ')[0];
+    await sendSMS(phone,
+      `Hare Krishna ${firstName}! 🙏 Your seva "${sevaList}" on ${dateFormatted} is confirmed at Jagannath Temple, Skjulhøj Allé 44. Questions? Call ${TEMPLE.PHONE}. Jai Jagannath!`
+    );
 
     showSuccess(displayName, sevaList, dateFormatted, email, phone);
 
-  } catch(err) {
+  } catch (err) {
     console.error('Submit error:', err);
-    showErr('Something went wrong saving your signup. Please call ' + TEMPLE.PHONE + ' or try again.');
+    showErr(`Something went wrong: ${err.message}. Please call ${TEMPLE.PHONE} or try again.`);
     setLoading(false);
   }
 }
 
-function setLoading(on) {
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = on;
-  btn.classList.toggle('loading', on);
-}
-
-function showErr(msg) {
-  const el = document.getElementById('err-msg');
-  el.textContent = msg;
-  el.classList.remove('hidden');
-  el.scrollIntoView({ behavior:'smooth', block:'center' });
-}
-
-function hideErr() {
-  document.getElementById('err-msg').classList.add('hidden');
-}
-
-function showSuccess(name, sevaList, dateFormatted, email, phone) {
-  document.getElementById('form-area').style.display = 'none';
-  document.getElementById('success-area').style.display = 'block';
-  document.getElementById('success-text').textContent =
-    `Thank you, ${name}! Your seva request for "${sevaList}" on ${dateFormatted} has been received.`;
-  document.getElementById('notif-confirm').innerHTML = `
-    <strong>🔔 Notifications sent to:</strong><br>
-    📧 ${email}<br>📱 ${phone}<br><br>
-    ✓ Confirmation email sent now<br>
-    ✓ Reminder emails scheduled<br>
-    ✓ Temple coordinator notified
-  `;
-  window.scrollTo({ top:0, behavior:'smooth' });
-}
-
-// Admin functions (used by admin-seva.html)
+// ═══════════════════════════════════════
+//  ADMIN FUNCTIONS (used by admin-seva.html)
+// ═══════════════════════════════════════
 async function adminLoadData() {
-  try {
-    return await dbRead();
-  } catch(e) {
-    console.error('Admin load failed:', e);
-    return [];
-  }
+  return await dbRead();
 }
 
 async function adminUpdateStatus(signups, id, status) {
-  const updated = signups.map(s => s.id === id ? {...s, status} : s);
+  const updated = signups.map(s => s.id === id ? { ...s, status } : s);
   await dbWrite(updated);
   return updated;
 }
@@ -219,4 +217,54 @@ async function adminDelete(signups, id) {
   const updated = signups.filter(s => s.id !== id);
   await dbWrite(updated);
   return updated;
+}
+
+// ═══════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════
+function setLoading(on) {
+  const btn = document.getElementById('submit-btn');
+  if (!btn) return;
+  btn.disabled = on;
+  btn.classList.toggle('loading', on);
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err-msg');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideErr() {
+  const el = document.getElementById('err-msg');
+  if (el) el.classList.add('hidden');
+}
+
+function showSuccess(name, sevaList, dateFormatted, email, phone) {
+  const formArea    = document.getElementById('form-area');
+  const successArea = document.getElementById('success-area');
+  if (formArea)    formArea.style.display = 'none';
+  if (successArea) successArea.style.display = 'block';
+
+  const successText = document.getElementById('success-text');
+  if (successText) {
+    successText.textContent =
+      `Thank you, ${name}! Your seva request for "${sevaList}" on ${dateFormatted} has been received.`;
+  }
+
+  const notifConfirm = document.getElementById('notif-confirm');
+  if (notifConfirm) {
+    notifConfirm.innerHTML = `
+      <strong>🔔 Notifications sent to:</strong><br>
+      📧 ${email}<br>
+      📱 ${phone}<br><br>
+      ✓ Confirmation email sent<br>
+      ✓ Reminder emails sent (day before &amp; morning of)<br>
+      ✓ SMS confirmation sent<br>
+      ✓ Temple coordinator notified
+    `;
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
