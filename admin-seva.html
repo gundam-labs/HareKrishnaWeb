@@ -160,6 +160,7 @@ body { background:#f7f5f0; }
   <div class="panel-actions" id="panel-actions"></div>
 </div>
 
+<script src="seva-db.js"></script>
 <script>
 const STORAGE_KEY = 'seva-signups';
 const ADMIN_PASS = 'jagannath2026';
@@ -185,10 +186,10 @@ function doLogout() {
 
 async function loadData() {
   try {
-    const result = await window.storage.get(STORAGE_KEY, true);
-    signups = result ? JSON.parse(result.value) : [];
+    signups = await adminLoadData();
   } catch(e) {
     signups = [];
+    console.error('Load error:', e);
   }
   renderStats();
   renderTable();
@@ -285,16 +286,14 @@ function closeDetail() {
 }
 
 async function updateStatus(id, status) {
-  signups = signups.map(s => s.id===id ? {...s, status} : s);
-  await window.storage.set(STORAGE_KEY, JSON.stringify(signups), true);
+  signups = await adminUpdateStatus(signups, id, status);
   renderStats(); renderTable();
   if (currentId === id) openDetail(id);
 }
 
 async function deleteSeva(id) {
   if (!confirm('Delete this seva signup? This cannot be undone.')) return;
-  signups = signups.filter(s => s.id !== id);
-  await window.storage.set(STORAGE_KEY, JSON.stringify(signups), true);
+  signups = await adminDelete(signups, id);
   renderStats(); renderTable(); closeDetail();
 }
 
