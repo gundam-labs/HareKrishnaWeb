@@ -5,8 +5,8 @@
 // ═══════════════════════════════════════════════════
 
 const JSONBIN_CONFIG = {
-  BIN_ID:    'YOUR_JSONBIN_BIN_ID',       // from jsonbin.io after creating bin
-  API_KEY:   'YOUR_JSONBIN_API_KEY',      // X-Master-Key from jsonbin.io
+  BIN_ID:    '6a5f454cf5f4af5e29abc230',       // from jsonbin.io after creating bin
+  API_KEY:   '$2a$10$kGfwryHQOC7AsB6SIn68n.tuS4d8mBqnSpKUAkmzF7xCK/hnKXW2e',      // X-Master-Key from jsonbin.io
   BASE_URL:  'https://api.jsonbin.io/v3/b'
 };
 
