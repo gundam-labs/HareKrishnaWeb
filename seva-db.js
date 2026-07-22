@@ -62,7 +62,7 @@ async function sendEmail(templateId, params) {
 
 // ── SMS (Step 2 — Cloudflare Worker, skip for now) ──
 async function sendSMS(to, message) {
-  if (WORKER.URL.includes('YOUR-SUBDOMAIN')) {
+  if (WORKER.URL.includes('krishna-gundam')) {
     console.log('⚠️ Worker not configured — SMS skipped');
     return;
   }
