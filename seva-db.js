@@ -25,27 +25,29 @@ const TEMPLE = {
   ADMIN_URL: 'https://jagannath.dk/admin-seva.html',
 };
 
+
+// ── Worker call helper ──
+async function workerCall(payload) {
+  const resp = await fetch(WORKER.URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ ...payload, secret: WORKER.SECRET })
+  });
+  if (!resp.ok) throw new Error(`Worker error: ${resp.status}`);
+  return resp.json();
+}
+
 // ── Database ──
 async function dbRead() {
-  const r = await fetch(`${JSONBIN.URL}/${JSONBIN.BIN_ID}/latest`, {
-    headers: { 'X-Master-Key': JSONBIN.API_KEY }
-  });
-  if (!r.ok) throw new Error('DB read failed: ' + r.status);
-  const d = await r.json();
-  return d.record?.signups || [];
+  const data = await workerCall({ action: 'db_read' });
+  if (!data.success) throw new Error(data.error || 'DB read failed');
+  return data.signups;
 }
 
 async function dbWrite(signups) {
-  const r = await fetch(`${JSONBIN.URL}/${JSONBIN.BIN_ID}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Master-Key': JSONBIN.API_KEY
-    },
-    body: JSON.stringify({ signups })
-  });
-  if (!r.ok) throw new Error('DB write failed: ' + r.status);
-  return r.json();
+  const data = await workerCall({ action: 'db_write', signups });
+  if (!data.success) throw new Error(data.error || 'DB write failed');
+  return data;
 }
 
 // ── Email ──
@@ -60,7 +62,17 @@ async function sendEmail(templateId, params) {
 
 // ── SMS (Step 2 — Cloudflare Worker, skip for now) ──
 async function sendSMS(to, message) {
-  console.log('ℹ️ SMS not yet configured — Step 2');
+  if (WORKER.URL.includes('YOUR-SUBDOMAIN')) {
+    console.log('⚠️ Worker not configured — SMS skipped');
+    return;
+  }
+  try {
+    const data = await workerCall({ action: 'sms', to, message });
+    if (data.success) console.log('✅ SMS sent:', data.sid);
+    else console.warn('⚠️ SMS failed:', data.error);
+  } catch(err) {
+    console.warn('⚠️ SMS error (non-fatal):', err.message);
+  }
 }
 
 // ── Main submit ──
@@ -164,6 +176,13 @@ async function submitSeva() {
       temple_phone:   TEMPLE.PHONE,
       temple_address: TEMPLE.ADDRESS,
     });
+
+
+    // 5. SMS confirmation via Worker → Twilio
+    const firstName = name.split(' ')[0];
+    await sendSMS(phone,
+      `Hare Krishna ${firstName}! 🙏 Your seva "${sevaList}" on ${dateFormatted} is confirmed. Jagannath Temple, Skjulhøj Allé 44, Vanløse. Questions? Call ${TEMPLE.PHONE}. Jai Jagannath!`
+    );
 
     showSuccess(displayName, sevaList, dateFormatted, email, phone);
 
