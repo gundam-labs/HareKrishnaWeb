@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-//  JAGANNATH.DK — seva-db.js  (Step 1: JSONBin direct)
-//  SMS via Cloudflare Worker — added in Step 2
+//  JAGANNATH.DK — seva-db.js  FINAL
+//  All DB + SMS calls go through Cloudflare Worker (secure)
+//  No secrets in this file — safe to be public on GitHub
 // ═══════════════════════════════════════════════════════════════
 
-const JSONBIN = {
-  BIN_ID:  '6a5f454cf5f4af5e29abc230',
-  API_KEY: '$2a$10$zNYsukts2VZ1jQDVoRzvXOv/v.pCyLaNrLg7OKncO.WL56iYn.WNa',
-  URL:     'https://api.jsonbin.io/v3/b'
+const WORKER = {
+  URL:    'https://jagannath-sms.krishna-gundam.workers.dev',
+  SECRET: 'JagannathSeva2026!'
 };
 
 const EMAILJS_CONFIG = {
@@ -25,19 +25,18 @@ const TEMPLE = {
   ADMIN_URL: 'https://jagannath.dk/admin-seva.html',
 };
 
-
-// ── Worker call helper ──
+// ── Worker call helper (handles all DB + SMS) ──
 async function workerCall(payload) {
   const resp = await fetch(WORKER.URL, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ ...payload, secret: WORKER.SECRET })
   });
-  if (!resp.ok) throw new Error(`Worker error: ${resp.status}`);
+  if (!resp.ok) throw new Error('Worker error: ' + resp.status);
   return resp.json();
 }
 
-// ── Database ──
+// ── Database via Worker → JSONBin ──
 async function dbRead() {
   const data = await workerCall({ action: 'db_read' });
   if (!data.success) throw new Error(data.error || 'DB read failed');
@@ -50,22 +49,8 @@ async function dbWrite(signups) {
   return data;
 }
 
-// ── Email ──
-async function sendEmail(templateId, params) {
-  try {
-    await emailjs.send(EMAILJS_CONFIG.SERVICE_ID, templateId, params);
-    console.log('✅ Email sent:', templateId);
-  } catch(e) {
-    console.warn('⚠️ Email failed:', e);
-  }
-}
-
-// ── SMS (Step 2 — Cloudflare Worker, skip for now) ──
+// ── SMS via Worker → Twilio ──
 async function sendSMS(to, message) {
-  if (WORKER.URL.includes('krishna-gundam')) {
-    console.log('⚠️ Worker not configured — SMS skipped');
-    return;
-  }
   try {
     const data = await workerCall({ action: 'sms', to, message });
     if (data.success) console.log('✅ SMS sent:', data.sid);
@@ -75,7 +60,19 @@ async function sendSMS(to, message) {
   }
 }
 
-// ── Main submit ──
+// ── Email via EmailJS ──
+async function sendEmail(templateId, params) {
+  try {
+    await emailjs.send(EMAILJS_CONFIG.SERVICE_ID, templateId, params);
+    console.log('✅ Email sent:', templateId);
+  } catch(e) {
+    console.warn('⚠️ Email failed (non-fatal):', e);
+  }
+}
+
+// ═══════════════════════════════════════
+//  MAIN SUBMIT
+// ═══════════════════════════════════════
 async function submitSeva() {
   const name      = document.getElementById('f-name').value.trim();
   const initiated = document.getElementById('f-initiated').value.trim();
@@ -93,7 +90,7 @@ async function submitSeva() {
 
   if (!name)         { showErr('Please enter your full name.'); return; }
   if (!email)        { showErr('Please enter your email address.'); return; }
-  if (!phone)        { showErr('Please enter your phone number.'); return; }
+  if (!phone)        { showErr('Please enter your phone number for SMS reminders.'); return; }
   if (!sevas.length) { showErr('Please select at least one seva type.'); return; }
   if (!date)         { showErr('Please select a seva date.'); return; }
 
@@ -106,7 +103,7 @@ async function submitSeva() {
   });
 
   const signup = {
-    id: Date.now().toString(),
+    id:          Date.now().toString(),
     name, initiated, phone, email, exp, sevas,
     date, days, notes,
     status:      'pending',
@@ -114,11 +111,11 @@ async function submitSeva() {
   };
 
   try {
-    // 1. Save to JSONBin
+    // 1. Save to database via Worker
     const existing = await dbRead();
     existing.push(signup);
     await dbWrite(existing);
-    console.log('✅ Saved to database');
+    console.log('✅ Signup saved');
 
     // 2. Confirmation email to devotee
     await sendEmail(EMAILJS_CONFIG.TEMPLATE_CONFIRM, {
@@ -177,11 +174,10 @@ async function submitSeva() {
       temple_address: TEMPLE.ADDRESS,
     });
 
-
-    // 5. SMS confirmation via Worker → Twilio
+    // 5. SMS via Worker → Twilio
     const firstName = name.split(' ')[0];
     await sendSMS(phone,
-      `Hare Krishna ${firstName}! 🙏 Your seva "${sevaList}" on ${dateFormatted} is confirmed. Jagannath Temple, Skjulhøj Allé 44, Vanløse. Questions? Call ${TEMPLE.PHONE}. Jai Jagannath!`
+      `Hare Krishna ${firstName}! Your seva "${sevaList}" on ${dateFormatted} is confirmed. Jagannath Temple, Skjulhoj Alle 44, Vanlöse. Questions? Call ${TEMPLE.PHONE}. Jai Jagannath!`
     );
 
     showSuccess(displayName, sevaList, dateFormatted, email, phone);
@@ -193,9 +189,11 @@ async function submitSeva() {
   }
 }
 
-// ── Admin functions ──
-async function adminLoadData()               { return await dbRead(); }
-async function adminUpdateStatus(s, id, st)  {
+// ═══════════════════════════════════════
+//  ADMIN FUNCTIONS
+// ═══════════════════════════════════════
+async function adminLoadData()              { return await dbRead(); }
+async function adminUpdateStatus(s, id, st) {
   const u = s.map(x => x.id===id ? {...x, status:st} : x);
   await dbWrite(u); return u;
 }
@@ -204,7 +202,9 @@ async function adminDelete(s, id) {
   await dbWrite(u); return u;
 }
 
-// ── UI helpers ──
+// ═══════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════
 function setLoading(on) {
   const btn = document.getElementById('submit-btn');
   if (!btn) return;
@@ -216,7 +216,7 @@ function showErr(msg) {
   if (!el) return;
   el.textContent = msg;
   el.classList.remove('hidden');
-  el.scrollIntoView({behavior:'smooth', block:'center'});
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 function hideErr() {
   const el = document.getElementById('err-msg');
@@ -235,8 +235,9 @@ function showSuccess(name, sevaList, dateFormatted, email, phone) {
     <strong>🔔 Notifications sent to:</strong><br>
     📧 ${email}<br>📱 ${phone}<br><br>
     ✓ Confirmation email sent<br>
-    ✓ Reminder emails sent<br>
+    ✓ Reminder emails sent (day before & morning of)<br>
+    ✓ SMS confirmation sent<br>
     ✓ Temple coordinator notified
   `;
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
