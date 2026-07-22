@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Satwik Shop — Jagannath Danmark</title>
+<meta name="description" content="Authentic Satwik products in Copenhagen — organic ghee, homemade sweets, deity items, spiritual books. No onion, no garlic, no preservatives. Order now.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ── SHOP HERO ── */
+.shop-hero { background:var(--night); padding:3.5rem 2rem 3rem; text-align:center; position:relative; overflow:hidden; }
+.shop-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 100%,rgba(200,145,26,.12) 0%,transparent 65%); }
+.shop-hero h1 { font-family:var(--font-d); font-size:clamp(2.2rem,5vw,3.8rem); font-weight:600; color:white; position:relative; }
+.shop-hero h1 em { color:var(--gold); font-style:italic; }
+.shop-hero p { font-family:var(--font-d); font-style:italic; color:rgba(255,255,255,.4); font-size:1.05rem; margin-top:.5rem; position:relative; }
+.satwik-badges { display:flex; justify-content:center; gap:.75rem; flex-wrap:wrap; margin-top:1.25rem; position:relative; }
+.s-badge { background:rgba(200,145,26,.12); border:1px solid rgba(200,145,26,.25); color:var(--gold); font-size:11px; padding:5px 14px; border-radius:20px; letter-spacing:.06em; }
+
+/* ── CATEGORY TABS ── */
+.cat-tabs { background:var(--white); border-bottom:1px solid var(--border); padding:0 2rem; display:flex; gap:0; overflow-x:auto; scrollbar-width:none; position:sticky; top:60px; z-index:100; }
+.cat-tabs::-webkit-scrollbar { display:none; }
+.cat-tab { padding:1rem 1.25rem; font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--font-b); }
+.cat-tab.active, .cat-tab:hover { color:var(--saffron); border-bottom-color:var(--saffron); }
+
+/* ── PRODUCTS GRID ── */
+.shop-wrap { max-width:1100px; margin:0 auto; padding:3rem 2rem 2rem; }
+.products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.25rem; }
+
+.product-card { background:white; border-radius:10px; border:1px solid var(--border); overflow:hidden; transition:transform .2s, box-shadow .2s; display:flex; flex-direction:column; }
+.product-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(200,145,26,.12); }
+.product-img { background:var(--gold-light); height:180px; display:flex; align-items:center; justify-content:center; font-size:3.5rem; position:relative; }
+.product-badge { position:absolute; top:10px; left:10px; font-size:10px; padding:3px 10px; border-radius:20px; font-weight:500; letter-spacing:.05em; }
+.badge-new { background:#e8f5e9; color:#2e7d32; }
+.badge-popular { background:var(--saffron-light); color:var(--saffron); }
+.badge-outofstock { background:#f5f5f5; color:#999; }
+.product-body { padding:1.25rem; flex:1; display:flex; flex-direction:column; }
+.product-category { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.35rem; }
+.product-name { font-family:var(--font-d); font-size:1.1rem; font-weight:600; color:var(--night); margin-bottom:.35rem; line-height:1.25; }
+.product-desc { font-size:13px; color:var(--text-mid); line-height:1.6; flex:1; margin-bottom:.75rem; }
+.product-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:.75rem; }
+.p-tag { font-size:10px; background:var(--cream); border:1px solid var(--border); color:var(--text-muted); padding:2px 8px; border-radius:10px; }
+.product-footer { display:flex; align-items:center; justify-content:space-between; margin-top:auto; }
+.product-price { font-family:var(--font-d); font-size:1.15rem; font-weight:600; color:var(--night); }
+.product-price .unit { font-size:11px; color:var(--text-muted); font-family:var(--font-b); font-weight:400; margin-left:2px; }
+.add-btn { background:var(--saffron); color:white; border:none; padding:8px 16px; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; transition:background .2s; font-family:var(--font-b); }
+.add-btn:hover { background:#c5520a; }
+.add-btn:disabled { background:#ccc; cursor:not-allowed; }
+.min-qty { font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+/* ── CART SIDEBAR ── */
+.cart-fab { position:fixed; bottom:24px; right:24px; background:var(--night); color:white; border:none; border-radius:50px; padding:12px 20px; font-size:14px; font-weight:500; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,.25); z-index:300; display:flex; align-items:center; gap:8px; transition:transform .2s; font-family:var(--font-b); }
+.cart-fab:hover { transform:scale(1.04); }
+.cart-count { background:var(--saffron); color:white; border-radius:50%; width:20px; height:20px; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+
+.cart-overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:400; display:none; }
+.cart-overlay.open { display:block; }
+
+.cart-panel { position:fixed; top:0; right:-480px; width:440px; max-width:100vw; height:100vh; background:white; z-index:500; transition:right .3s; display:flex; flex-direction:column; box-shadow:-4px 0 30px rgba(0,0,0,.1); }
+.cart-panel.open { right:0; }
+.cart-header { padding:1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.cart-header h3 { font-family:var(--font-d); font-size:1.4rem; font-weight:600; }
+.cart-close { background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted); padding:4px; }
+.cart-items { flex:1; overflow-y:auto; padding:1rem 1.5rem; }
+.cart-empty { text-align:center; padding:3rem 1rem; color:var(--text-muted); }
+.cart-empty .icon { font-size:2.5rem; margin-bottom:.75rem; opacity:.4; }
+.cart-item { display:flex; gap:.75rem; align-items:start; padding:.75rem 0; border-bottom:1px solid rgba(200,145,26,.08); }
+.ci-icon { font-size:1.75rem; min-width:40px; text-align:center; }
+.ci-info { flex:1; }
+.ci-name { font-family:var(--font-d); font-size:.95rem; font-weight:600; color:var(--night); }
+.ci-qty { display:flex; align-items:center; gap:8px; margin-top:6px; }
+.qty-btn { background:var(--cream); border:1px solid var(--border); width:26px; height:26px; border-radius:4px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.qty-btn:hover { background:var(--gold-light); border-color:var(--gold); }
+.ci-qty-num { font-size:14px; font-weight:500; min-width:20px; text-align:center; }
+.ci-price { font-weight:500; color:var(--night); font-size:14px; white-space:nowrap; }
+.ci-remove { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; padding:2px 6px; }
+.ci-remove:hover { color:#c62828; }
+
+.cart-footer { padding:1.5rem; border-top:1px solid var(--border); }
+.cart-subtotal { display:flex; justify-content:space-between; font-size:14px; color:var(--text-mid); margin-bottom:.5rem; }
+.cart-delivery { font-size:12px; color:var(--text-muted); margin-bottom:1rem; }
+.cart-total { display:flex; justify-content:space-between; font-family:var(--font-d); font-size:1.2rem; font-weight:600; margin-bottom:1.25rem; padding-top:.75rem; border-top:1px solid var(--border); }
+.checkout-btn { width:100%; padding:14px; background:var(--saffron); color:white; border:none; border-radius:6px; font-size:15px; font-weight:500; cursor:pointer; font-family:var(--font-b); transition:background .2s; }
+.checkout-btn:hover { background:#c5520a; }
+.checkout-btn:disabled { background:#ccc; cursor:not-allowed; }
+.wa-order-btn { width:100%; padding:12px; background:#25D366; color:white; border:none; border-radius:6px; font-size:14px; font-weight:500; cursor:pointer; font-family:var(--font-b); margin-top:.5rem; display:flex; align-items:center; justify-content:center; gap:8px; transition:background .2s; }
+.wa-order-btn:hover { background:#1ebe5d; }
+
+/* ── ORDER FORM MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:600; display:none; align-items:center; justify-content:center; padding:1rem; }
+.modal-overlay.open { display:flex; }
+.modal { background:white; border-radius:12px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
+.modal-header { padding:1.5rem 1.5rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.modal-header h3 { font-family:var(--font-d); font-size:1.4rem; font-weight:600; }
+.modal-body { padding:1.5rem; }
+.modal-field { margin-bottom:1.1rem; }
+.modal-field label { display:block; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.4rem; font-weight:500; }
+.modal-field input, .modal-field textarea, .modal-field select { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-family:var(--font-b); font-size:15px; color:var(--text); background:var(--cream); outline:none; transition:border-color .2s; }
+.modal-field input:focus, .modal-field textarea:focus { border-color:var(--gold); background:white; }
+.modal-field textarea { resize:vertical; min-height:70px; }
+.field-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+.order-summary-box { background:var(--cream); border-radius:8px; padding:1rem; margin-bottom:1.25rem; font-size:13px; color:var(--text-mid); }
+.order-summary-box strong { color:var(--night); display:block; margin-bottom:.5rem; font-family:var(--font-d); font-size:1rem; }
+.place-order-btn { width:100%; padding:14px; background:var(--saffron); color:white; border:none; border-radius:6px; font-size:15px; font-weight:500; cursor:pointer; font-family:var(--font-b); transition:background .2s; }
+.place-order-btn:hover { background:#c5520a; }
+.place-order-btn:disabled { background:#ccc; cursor:not-allowed; }
+.order-success { text-align:center; padding:2.5rem 1.5rem; display:none; }
+.order-success .os-icon { font-size:3rem; margin-bottom:1rem; }
+.order-success h3 { font-family:var(--font-d); font-size:1.8rem; color:var(--night); margin-bottom:.5rem; }
+.order-success p { font-size:14px; color:var(--text-mid); line-height:1.7; }
+
+.msg-bar { padding:10px 14px; border-radius:6px; font-size:13px; margin-bottom:1rem; display:none; }
+.msg-bar.error { background:#fff0f0; border:1px solid #fcc; color:#c00; display:block; }
+
+@media(max-width:600px){
+  .cart-panel { width:100vw; }
+  .field-row-2 { grid-template-columns:1fr; }
+  .products-grid { grid-template-columns:1fr 1fr; gap:.75rem; }
+  .product-img { height:130px; font-size:2.5rem; }
+}
+@media(max-width:420px){
+  .products-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="lang-bar">
+  <button class="lang-btn" onclick="setLang('da')">Dansk</button>
+  <button class="lang-btn active" onclick="setLang('en')">English</button>
+</div>
+
+<nav>
+  <a class="nav-logo" href="index.html">Jagannath<span> Danmark</span></a>
+  <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+  <ul class="nav-links" id="nav-menu">
+    <li><a href="about.html"><span class="t-en">About</span><span class="t-da">Om os</span></a></li>
+    <li><a href="schedule.html"><span class="t-en">Schedule</span><span class="t-da">Program</span></a></li>
+    <li><a href="events.html"><span class="t-en">Events</span><span class="t-da">Begivenheder</span></a></li>
+    <li><a href="gallery.html"><span class="t-en">Gallery</span><span class="t-da">Galleri</span></a></li>
+    <li><a href="visit.html"><span class="t-en">Visit</span><span class="t-da">Besøg</span></a></li>
+    <li><a href="seva.html"><span class="t-en">Seva</span><span class="t-da">Seva</span></a></li>
+    <li><a href="shop.html" style="color:var(--gold)"><span class="t-en">Shop</span><span class="t-da">Butik</span></a></li>
+    <li><a href="donate.html" class="nav-donate"><span class="t-en">Donate</span><span class="t-da">Donér</span></a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="shop-hero">
+  <div class="breadcrumb"><a href="index.html">Home</a> / <span class="t-en">Shop</span><span class="t-da">Butik</span></div>
+  <h1><span class="t-en">Satwik <em>Shop</em></span><span class="t-da">Satwik <em>Butik</em></span></h1>
+  <p><span class="t-en">Authentic products — prepared with devotion, no onion, no garlic, no preservatives</span><span class="t-da">Autentiske produkter — tilberedt med hengivenhed, ingen løg, ingen hvidløg</span></p>
+  <div class="satwik-badges">
+    <span class="s-badge">🌿 Pure Vegetarian</span>
+    <span class="s-badge">🙏 Satwik</span>
+    <span class="s-badge">🏠 Homemade</span>
+    <span class="s-badge">✨ No Preservatives</span>
+    <span class="s-badge">🇮🇳 Authentic Indian</span>
+  </div>
+</div>
+
+<!-- CATEGORY TABS -->
+<div class="cat-tabs" id="cat-tabs">
+  <button class="cat-tab active" onclick="filterCat('all')">
+    <span class="t-en">All Products</span><span class="t-da">Alle produkter</span>
+  </button>
+  <button class="cat-tab" onclick="filterCat('sweets')">🍬 <span class="t-en">Sweets</span><span class="t-da">Slik</span></button>
+  <button class="cat-tab" onclick="filterCat('organic')">🌿 <span class="t-en">Organic</span><span class="t-da">Økologisk</span></button>
+  <button class="cat-tab" onclick="filterCat('deity')">🪬 <span class="t-en">Deity Items</span><span class="t-da">Gudegenstande</span></button>
+  <button class="cat-tab" onclick="filterCat('books')">📚 <span class="t-en">Books</span><span class="t-da">Bøger</span></button>
+  <button class="cat-tab" onclick="filterCat('clothing')">👗 <span class="t-en">Clothing</span><span class="t-da">Tøj</span></button>
+</div>
+
+<!-- PRODUCTS -->
+<div class="shop-wrap">
+  <div class="products-grid" id="products-grid"></div>
+</div>
+
+<!-- CART FAB -->
+<button class="cart-fab" onclick="openCart()" id="cart-fab">
+  🛒 <span class="t-en">Cart</span><span class="t-da">Kurv</span>
+  <span class="cart-count" id="cart-count">0</span>
+</button>
+
+<!-- CART PANEL -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-header">
+    <h3>🛒 <span class="t-en">Your Cart</span><span class="t-da">Din kurv</span></h3>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-subtotal">
+      <span><span class="t-en">Subtotal</span><span class="t-da">Subtotal</span></span>
+      <span id="cart-subtotal">0 kr.</span>
+    </div>
+    <div class="cart-delivery" id="cart-delivery-note">
+      <span class="t-en">Delivery: 30 kr. (free over 300 kr.) · Or self-pickup at temple</span>
+      <span class="t-da">Levering: 30 kr. (gratis over 300 kr.) · Eller afhentning ved templet</span>
+    </div>
+    <div class="cart-total">
+      <span><span class="t-en">Total</span><span class="t-da">Total</span></span>
+      <span id="cart-total">0 kr.</span>
+    </div>
+    <button class="checkout-btn" onclick="openOrderForm()" id="checkout-btn" disabled>
+      <span class="t-en">Proceed to Order</span><span class="t-da">Gå til bestilling</span>
+    </button>
+    <button class="wa-order-btn" onclick="whatsappOrder()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span class="t-en">Order via WhatsApp</span><span class="t-da">Bestil via WhatsApp</span>
+    </button>
+  </div>
+</div>
+
+<!-- ORDER FORM MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📋 <span class="t-en">Complete Your Order</span><span class="t-da">Fuldfør din bestilling</span></h3>
+      <button class="cart-close" onclick="closeOrderForm()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="order-summary-box" id="order-summary-box"></div>
+      <div class="msg-bar" id="order-err"></div>
+      <div class="field-row-2">
+        <div class="modal-field">
+          <label><span class="t-en">Full name *</span><span class="t-da">Fulde navn *</span></label>
+          <input type="text" id="o-name" placeholder="Your name">
+        </div>
+        <div class="modal-field">
+          <label><span class="t-en">Phone / WhatsApp *</span><span class="t-da">Telefon *</span></label>
+          <input type="tel" id="o-phone" placeholder="+45 XX XX XX XX">
+        </div>
+      </div>
+      <div class="modal-field">
+        <label><span class="t-en">Email address *</span><span class="t-da">E-mail *</span></label>
+        <input type="email" id="o-email" placeholder="you@example.com">
+      </div>
+      <div class="modal-field">
+        <label><span class="t-en">Delivery address (or "Temple pickup")</span><span class="t-da">Leveringsadresse (eller "Afhentning ved templet")</span></label>
+        <input type="text" id="o-address" placeholder="Street, postal code, city — or: Temple pickup">
+      </div>
+      <div class="modal-field">
+        <label><span class="t-en">Preferred date</span><span class="t-da">Foretrukken dato</span></label>
+        <input type="date" id="o-date">
+      </div>
+      <div class="modal-field">
+        <label><span class="t-en">Notes / special requests</span><span class="t-da">Noter / særlige ønsker</span></label>
+        <textarea id="o-notes" placeholder="Allergies, special occasions, bulk requests..."></textarea>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:1.25rem">
+        🔒 <span class="t-en">Your data is used only to process your order. We will confirm via WhatsApp or phone within 24 hours. Order at least 48 hours in advance.</span>
+        <span class="t-da">Dine data bruges kun til at behandle din bestilling. Vi bekræfter via WhatsApp eller telefon inden for 24 timer.</span>
+      </p>
+      <button class="place-order-btn" id="place-order-btn" onclick="placeOrder()">
+        🙏 <span class="t-en">Place Order</span><span class="t-da">Afgiv bestilling</span>
+      </button>
+    </div>
+    <div class="order-success" id="order-success">
+      <div class="os-icon">🎉</div>
+      <h3><span class="t-en">Order Placed!</span><span class="t-da">Bestilling modtaget!</span></h3>
+      <p id="order-success-text"></p>
+      <p style="margin-top:1rem;font-size:13px;color:var(--text-muted)">
+        <span class="t-en">We will confirm your order within 24 hours. Jai Jagannath! 🙏</span>
+        <span class="t-da">Vi bekræfter din bestilling inden for 24 timer. Jai Jagannath! 🙏</span>
+      </p>
+      <button onclick="closeOrderForm()" class="btn-outline-dark" style="margin-top:1.5rem;padding:10px 24px">
+        <span class="t-en">Continue shopping</span><span class="t-da">Fortsæt shopping</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Jagannath Danmark</div>
+  <div class="footer-mantra">Hare Krishna Hare Krishna · Krishna Krishna Hare Hare · Hare Rama Hare Rama · Rama Rama Hare Hare</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="about.html"><span class="t-en">About</span><span class="t-da">Om os</span></a>
+    <a href="seva.html">Seva</a>
+    <a href="shop.html"><span class="t-en">Shop</span><span class="t-da">Butik</span></a>
+    <a href="donate.html"><span class="t-en">Donate</span><span class="t-da">Donér</span></a>
+  </div>
+  <div class="footer-addr">Skjulhøj Allé 44 · 2720 Vanløse · <a href="tel:+4548286446" style="color:inherit">48 28 64 46</a></div>
+  <div class="footer-copy">© 2026 Jagannath Danmark · jagannath.dk</div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+// ═══════════════════════════════════════════
+//  PRODUCT CATALOGUE
+// ═══════════════════════════════════════════
+const PRODUCTS = [
+  // SWEETS
+  { id:'s1', cat:'sweets', icon:'🍬', name:'Besan Ladoo', desc:'Handmade chickpea flour balls with ghee and cardamom. Traditional Satwik sweet offered to the deities.', price:120, unit:'500g', minQty:1, tags:['Homemade','No preservatives','Satwik'], badge:'popular', available:true },
+  { id:'s2', cat:'sweets', icon:'🟡', name:'Mysore Pak', desc:'Rich fudge made with pure ghee and gram flour. Melt-in-mouth authentic South Indian sweet.', price:150, unit:'400g', minQty:1, tags:['Homemade','Pure ghee','Satwik'], badge:'', available:true },
+  { id:'s3', cat:'sweets', icon:'🍫', name:'Chocolate Barfi', desc:'Fusion Satwik barfi with cocoa and condensed milk. No artificial flavours — made fresh to order.', price:130, unit:'400g', minQty:1, tags:['Homemade','Satwik','Fusion'], badge:'new', available:true },
+  { id:'s4', cat:'sweets', icon:'🌸', name:'Coconut Barfi', desc:'Classic coconut barfi with cardamom and rose water. Pure, simple, and utterly delicious.', price:100, unit:'400g', minQty:1, tags:['Homemade','Satwik','Vegan option'], badge:'', available:true },
+  { id:'s5', cat:'sweets', icon:'🟠', name:'Motichoor Ladoo', desc:'Tiny pearl-like gram flour droplets fried in ghee and formed into soft sweet ladoos.', price:140, unit:'500g', minQty:1, tags:['Homemade','Pure ghee'], badge:'popular', available:true },
+  { id:'s6', cat:'sweets', icon:'🍮', name:'Halwa (Suji)', desc:'Semolina halwa with saffron, cardamom and dry fruits. Perfect as prasadam offering.', price:90, unit:'400g', minQty:2, tags:['Homemade','Prasadam quality'], badge:'', available:true },
+
+  // ORGANIC
+  { id:'o1', cat:'organic', icon:'🫙', name:'Organic Cow Ghee', desc:'Pure A2 cow ghee, slow-cooked in small batches. The foundation of Satwik cooking — golden, fragrant, and pure.', price:280, unit:'500ml', minQty:1, tags:['Organic','A2 cow','No additives'], badge:'popular', available:true },
+  { id:'o2', cat:'organic', icon:'🍯', name:'Raw Forest Honey', desc:'Unprocessed wild forest honey sourced directly from beekeepers. Rich, natural and full of enzymes.', price:180, unit:'500g', minQty:1, tags:['Raw','Unprocessed','Natural'], badge:'', available:true },
+  { id:'o3', cat:'organic', icon:'🌿', name:'Tulasi (Holy Basil) Plant', desc:'Sacred Tulasi plant for home worship. Grown with devotion. Comes in a small pot, ready for your altar.', price:80, unit:'1 plant', minQty:1, tags:['Sacred','Living plant','Worship'], badge:'new', available:true },
+  { id:'o4', cat:'organic', icon:'🌺', name:'Dried Rose Petals', desc:'Sun-dried rose petals for deity offerings and home puja. Pure and fragrant, sourced with care.', price:60, unit:'100g', minQty:1, tags:['Puja offering','Natural','Fragrant'], badge:'', available:true },
+  { id:'o5', cat:'organic', icon:'🫚', name:'Cold-Pressed Sesame Oil', desc:'Traditional cold-pressed sesame oil for cooking and lamp use. Pure and unrefined.', price:150, unit:'500ml', minQty:1, tags:['Cold-pressed','Unrefined','Multi-use'], badge:'', available:true },
+
+  // DEITY ITEMS
+  { id:'d1', cat:'deity', icon:'🪬', name:'Jagannath Murti Set', desc:'Beautiful hand-painted Jagannath, Baladeva and Subhadra murti set for home altar. Approx 10cm height.', price:450, unit:'set of 3', minQty:1, tags:['Hand-painted','Home worship','Gift'], badge:'popular', available:true },
+  { id:'d2', cat:'deity', icon:'🪔', name:'Brass Diya (Ghee Lamp)', desc:'Traditional brass oil lamp for aarti and daily worship. Easy to use, long lasting.', price:180, unit:'1 piece', minQty:1, tags:['Brass','Traditional','Puja'], badge:'', available:true },
+  { id:'d3', cat:'deity', icon:'📿', name:'Tulasi Mala (108 beads)', desc:'Authentic Tulasi wood japa mala for chanting the Hare Krishna mantra. 108 beads, handstrung.', price:120, unit:'1 mala', minQty:1, tags:['Authentic','Handmade','Japa'], badge:'popular', available:true },
+  { id:'d4', cat:'deity', icon:'🌸', name:'Deity Flower Garland', desc:'Fresh flower garland for deity decoration. Made to order — please order 48 hours in advance.', price:80, unit:'1 garland', minQty:2, tags:['Fresh','Made to order','Fragrant'], badge:'', available:true },
+  { id:'d5', cat:'deity', icon:'🕯️', name:'Camphor (Kapoor) Tablets', desc:'Pure camphor tablets for aarti ceremony. Burns clean, no residue. Temple grade quality.', price:50, unit:'50 tablets', minQty:1, tags:['Temple grade','Pure','Aarti'], badge:'', available:true },
+  { id:'d6', cat:'deity', icon:'🫧', name:'Sandalwood Incense Sticks', desc:'Pure sandalwood agarbatti, handrolled. Long burning, no synthetic fragrance. Ideal for puja and meditation.', price:70, unit:'20 sticks', minQty:2, tags:['Handrolled','Pure sandalwood','Meditation'], badge:'', available:true },
+
+  // BOOKS
+  { id:'b1', cat:'books', icon:'📗', name:'Bhagavad Gita As It Is', desc:'The complete edition by Srila Prabhupada — the most widely read edition in the world. English hardcover.', price:220, unit:'1 book', minQty:1, tags:['Srila Prabhupada','English','Hardcover'], badge:'popular', available:true },
+  { id:'b2', cat:'books', icon:'📘', name:'Srimad Bhagavatam (Vol 1)', desc:'The first volume of Srila Prabhupada\'s monumental translation and commentary on the Srimad Bhagavatam.', price:280, unit:'1 book', minQty:1, tags:['Srila Prabhupada','English'], badge:'', available:true },
+  { id:'b3', cat:'books', icon:'📙', name:'Chant and Be Happy', desc:'The power of mantra meditation — featuring interviews with John Lennon and George Harrison. A beautiful introduction.', price:120, unit:'1 book', minQty:1, tags:['Beginner friendly','Inspiring'], badge:'new', available:true },
+  { id:'b4', cat:'books', icon:'📕', name:'The Higher Taste', desc:'A guide to gourmet vegetarian cooking and a new concept of food with over 60 Satwik recipes.', price:100, unit:'1 book', minQty:1, tags:['Recipes','Satwik cooking','Vegetarian'], badge:'', available:true },
+  { id:'b5', cat:'books', icon:'📓', name:'Bhagavad Gita (Danish edition)', desc:'Bhagavad Gita As It Is in Danish — perfect for Danish devotees and newcomers.', price:220, unit:'1 book', minQty:1, tags:['Dansk','Srila Prabhupada'], badge:'', available:true },
+
+  // CLOTHING
+  { id:'c1', cat:'clothing', icon:'👘', name:'Dhoti (Cotton, White)', desc:'Traditional pure cotton dhoti for temple visits and home worship. Available in standard size, easy to wear.', price:180, unit:'1 piece', minQty:1, tags:['Pure cotton','Traditional','Unisex'], badge:'', available:true },
+  { id:'c2', cat:'clothing', icon:'🧣', name:'Tilak Set (Gopi Chandan)', desc:'Pure Gopi Chandan tilak clay with applicator. For marking the Vaishnava tilak on forehead.', price:80, unit:'1 set', minQty:1, tags:['Pure','Traditional','Worship'], badge:'popular', available:true },
+  { id:'c3', cat:'clothing', icon:'🪢', name:'Kanthi Mala (Neck beads)', desc:'Three-strand Tulasi Kanthi mala worn by Vaishnavas. Spiritually powerful and beautiful.', price:90, unit:'1 mala', minQty:1, tags:['Tulasi wood','Traditional','Handmade'], badge:'', available:true },
+];
+
+let cart = {};
+let currentFilter = 'all';
+
+// ═══════════════════════════════════════
+//  RENDER PRODUCTS
+// ═══════════════════════════════════════
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  const filtered = currentFilter === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.cat === currentFilter);
+
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card" data-cat="${p.cat}">
+      <div class="product-img">
+        ${p.icon}
+        ${p.badge ? `<span class="product-badge badge-${p.badge}">${p.badge === 'popular' ? '⭐ Popular' : p.badge === 'new' ? '✨ New' : ''}</span>` : ''}
+        ${!p.available ? `<span class="product-badge badge-outofstock">Out of stock</span>` : ''}
+      </div>
+      <div class="product-body">
+        <div class="product-category">${p.cat}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-tags">${p.tags.map(t => `<span class="p-tag">${t}</span>`).join('')}</div>
+        <div class="product-footer">
+          <div>
+            <div class="product-price">${p.price} kr. <span class="unit">/ ${p.unit}</span></div>
+            ${p.minQty > 1 ? `<div class="min-qty">Min. order: ${p.minQty}</div>` : ''}
+          </div>
+          <button class="add-btn" onclick="addToCart('${p.id}')" ${!p.available ? 'disabled' : ''}>
+            ${p.available ? '+ Add' : 'Sold out'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCat(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.cat-tab').forEach((t,i) => {
+    const cats = ['all','sweets','organic','deity','books','clothing'];
+    t.classList.toggle('active', cats[i] === cat);
+  });
+  renderProducts();
+}
+
+// ═══════════════════════════════════════
+//  CART LOGIC
+// ═══════════════════════════════════════
+function addToCart(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  cart[id] = cart[id] ? cart[id] + 1 : (p.minQty || 1);
+  updateCartUI();
+  // Briefly open cart to show item added
+  openCart();
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  updateCartUI();
+}
+
+function changeQty(id, delta) {
+  const p = PRODUCTS.find(x => x.id === id);
+  const min = p?.minQty || 1;
+  cart[id] = Math.max(min, (cart[id] || 1) + delta);
+  if (cart[id] <= 0) delete cart[id];
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const items = Object.entries(cart);
+  const count = items.reduce((s, [,q]) => s + q, 0);
+  const subtotal = items.reduce((s, [id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return s + (p ? p.price * q : 0);
+  }, 0);
+  const delivery = subtotal >= 300 ? 0 : (subtotal > 0 ? 30 : 0);
+  const total = subtotal + delivery;
+
+  document.getElementById('cart-count').textContent = count;
+  document.getElementById('cart-subtotal').textContent = subtotal + ' kr.';
+  document.getElementById('cart-total').textContent = total + ' kr.';
+
+  const delivNote = document.getElementById('cart-delivery-note');
+  if (subtotal > 0) {
+    delivNote.innerHTML = delivery === 0
+      ? '✅ Free delivery (over 300 kr.) · Or self-pickup at temple'
+      : `Delivery: 30 kr. · Free over 300 kr. · Or self-pickup at temple`;
+  }
+
+  document.getElementById('checkout-btn').disabled = items.length === 0;
+
+  const itemsEl = document.getElementById('cart-items');
+  if (items.length === 0) {
+    itemsEl.innerHTML = `<div class="cart-empty"><div class="icon">🛒</div><div>Your cart is empty</div></div>`;
+    return;
+  }
+  itemsEl.innerHTML = items.map(([id, qty]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return '';
+    return `
+      <div class="cart-item">
+        <div class="ci-icon">${p.icon}</div>
+        <div class="ci-info">
+          <div class="ci-name">${p.name}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${p.unit} · ${p.price} kr. each</div>
+          <div class="ci-qty">
+            <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
+            <span class="ci-qty-num">${qty}</span>
+            <button class="qty-btn" onclick="changeQty('${id}', 1)">+</button>
+            <button class="ci-remove" onclick="removeFromCart('${id}')">✕ remove</button>
+          </div>
+        </div>
+        <div class="ci-price">${p.price * qty} kr.</div>
+      </div>`;
+  }).join('');
+}
+
+function openCart() {
+  document.getElementById('cart-panel').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cart-panel').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+//  ORDER FORM
+// ═══════════════════════════════════════
+function openOrderForm() {
+  closeCart();
+  const items = Object.entries(cart);
+  const subtotal = items.reduce((s, [id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return s + (p ? p.price * q : 0);
+  }, 0);
+  const delivery = subtotal >= 300 ? 0 : 30;
+  const total = subtotal + delivery;
+
+  const summaryLines = items.map(([id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return `${p.icon} ${p.name} × ${q} = ${p.price * q} kr.`;
+  }).join('<br>');
+
+  document.getElementById('order-summary-box').innerHTML = `
+    <strong>📋 Your order:</strong>
+    ${summaryLines}<br>
+    <hr style="border:none;border-top:1px solid var(--border);margin:.5rem 0">
+    Subtotal: ${subtotal} kr. · Delivery: ${delivery === 0 ? 'Free' : delivery + ' kr.'} · <strong>Total: ${total} kr.</strong>
+  `;
+
+  document.getElementById('modal-body').style.display = 'block';
+  document.getElementById('order-success').style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('open');
+
+  // Set min date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 2);
+  document.getElementById('o-date').min = tomorrow.toISOString().split('T')[0];
+}
+
+function closeOrderForm() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+async function placeOrder() {
+  const name  = document.getElementById('o-name').value.trim();
+  const phone = document.getElementById('o-phone').value.trim();
+  const email = document.getElementById('o-email').value.trim();
+  const addr  = document.getElementById('o-address').value.trim();
+  const date  = document.getElementById('o-date').value;
+  const notes = document.getElementById('o-notes').value.trim();
+
+  const err = document.getElementById('order-err');
+  err.style.display = 'none';
+
+  if (!name)  { err.textContent = 'Please enter your name.'; err.style.display='block'; return; }
+  if (!phone) { err.textContent = 'Please enter your phone number.'; err.style.display='block'; return; }
+  if (!email) { err.textContent = 'Please enter your email address.'; err.style.display='block'; return; }
+
+  const btn = document.getElementById('place-order-btn');
+  btn.disabled = true;
+  btn.textContent = 'Placing order...';
+
+  const items = Object.entries(cart);
+  const subtotal = items.reduce((s, [id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return s + (p ? p.price * q : 0);
+  }, 0);
+  const delivery = subtotal >= 300 ? 0 : 30;
+  const total = subtotal + delivery;
+  const orderId = 'JD-' + Date.now().toString().slice(-6);
+
+  const orderLines = items.map(([id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return `${p.name} × ${q} (${p.price * q} kr.)`;
+  }).join(', ');
+
+  // Try to save via Worker
+  try {
+    await fetch('https://jagannath-sms.krishna-gundam.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'db_write',
+        secret: 'JagannathSeva2026!',
+        // We save orders in a separate concept — just log for now
+        signups: [{ type:'shop_order', orderId, name, phone, email, addr, date, notes, items: orderLines, total, submittedAt: new Date().toISOString() }]
+      })
+    });
+  } catch(e) { /* non-fatal */ }
+
+  // Show success
+  document.getElementById('modal-body').style.display = 'none';
+  document.getElementById('order-success').style.display = 'block';
+  document.getElementById('order-success-text').textContent =
+    `Order #${orderId} received for ${name}. Total: ${total} kr. We'll confirm via WhatsApp to ${phone} within 24 hours.`;
+
+  cart = {};
+  updateCartUI();
+}
+
+function whatsappOrder() {
+  const items = Object.entries(cart);
+  if (!items.length) return;
+  const lines = items.map(([id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return `• ${p.name} × ${q} = ${p.price * q} kr.`;
+  }).join('\n');
+  const subtotal = items.reduce((s, [id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return s + (p ? p.price * q : 0);
+  }, 0);
+  const msg = encodeURIComponent(
+    `Hare Krishna! I'd like to place a Satwik Shop order:\n\n${lines}\n\nTotal: ${subtotal + (subtotal >= 300 ? 0 : 30)} kr.\n\nPlease confirm. Jai Jagannath! 🙏`
+  );
+  window.open(`https://wa.me/4548286446?text=${msg}`, '_blank');
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  renderProducts();
+  updateCartUI();
+});
+</script>
+</body>
+</html>
