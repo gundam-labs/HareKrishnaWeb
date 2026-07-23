@@ -156,17 +156,7 @@
     <!-- SEVA SELECTION -->
     <div class="form-card">
       <h3>🙏 <span class="t-en">Choose your seva *</span><span class="t-da">Vælg din seva *</span></h3>
-      <div class="seva-grid">
-        <div class="seva-option"><input type="checkbox" id="s1" value="Mangala Aarti"><label for="s1"><span class="seva-icon">🕯️</span><span class="seva-name">Mangala Aarti</span><span class="seva-time">4:30 AM daily</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s2" value="Deity Dressing"><label for="s2"><span class="seva-icon">🌸</span><span class="seva-name">Deity Dressing</span><span class="seva-time">Morning</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s3" value="Flower Arrangement"><label for="s3"><span class="seva-icon">💐</span><span class="seva-name">Flower Arrangement</span><span class="seva-time">Morning</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s4" value="Altar Cleaning"><label for="s4"><span class="seva-icon">✨</span><span class="seva-name">Altar Cleaning</span><span class="seva-time">Morning</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s5" value="Cooking Prasadam"><label for="s5"><span class="seva-icon">🍲</span><span class="seva-name">Cooking Prasadam</span><span class="seva-time">Late morning</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s6" value="Sunday Feast Cooking"><label for="s6"><span class="seva-icon">🥘</span><span class="seva-name">Sunday Feast Cooking</span><span class="seva-time">Sundays 12:00</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s7" value="Greeting Devotees"><label for="s7"><span class="seva-icon">🙏</span><span class="seva-name">Greeting Devotees</span><span class="seva-time">Evenings</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s8" value="Kirtan"><label for="s8"><span class="seva-icon">🥁</span><span class="seva-name">Kirtan</span><span class="seva-time">Various</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s9" value="Ratha-Yatra Preparation"><label for="s9"><span class="seva-icon">🏛️</span><span class="seva-name">Ratha-Yatra Prep</span><span class="seva-time">Annual festival</span></label></div>
-        <div class="seva-option"><input type="checkbox" id="s10" value="General Assistance"><label for="s10"><span class="seva-icon">🤝</span><span class="seva-name">General Assistance</span><span class="seva-time">As needed</span></label></div>
+      <div class="seva-grid" id="seva-options-grid">
       </div>
     </div>
 
@@ -232,6 +222,8 @@
 <script src="shared.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // Load seva options dynamically from Google Sheet
+  renderSevaOptions();
   // Set minimum date to tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
